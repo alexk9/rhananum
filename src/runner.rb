@@ -9,7 +9,7 @@ workflow = WorkflowFactory.get_predefined_workflow( WorkflowFactory::WORKFLOW_NO
 workflow.activate_workflow( false )
 document = "지난 9일 오전 7시29분 서울역 승강장. 토요일 새벽 4시50분 부산역을 출발한 KTX 열차에서 책가방을 멘 젊은이들이 쏟아져 나왔다. 서울시 공무원 시험을 치르기 위해 지방에서 올라온 수험생들이다."
 workflow.analyze(document)
-
+#test
 result_list = workflow.get_result_of_document( Sentence.new(0, 0, false))
 
 for s in resultList do
