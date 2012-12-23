@@ -1,1 +1,7 @@
-This file was created by JetBrains RubyMine 4.5.4 for binding GitHub repository
+
+
+* 2012/12/23
+ - RubyMine 구매기념으로 잉여짓시작
+ - jhannanum 형태소분석기를 포팅중
+ - 먼저, 명사추출기기능만되도록할생각임. 나중에키워드추출에사용할수있을것 같아서..
+ - 일단 컴파일만되게해놓은상태임.

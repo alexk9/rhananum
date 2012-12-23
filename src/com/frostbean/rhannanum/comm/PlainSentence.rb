@@ -2,7 +2,7 @@ require "com/frostbean/rhannanum/comm/CommObject"
 
 class PlainSentence < CommObject
 
-  attr_accessor :sentence
+  attr_accessor :sentence, :document_id
 
   def initialize document_id, sentence_id, end_of_document
     @document_id = document_id

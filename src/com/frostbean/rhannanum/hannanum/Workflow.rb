@@ -1,3 +1,5 @@
+$: << "/Users/alexk/Documents/workspace/rhannanum-eclipse/src" 
+
 require "thread"
 require "com/frostbean/rhannanum/comm/PlainSentence"
 
@@ -43,7 +45,7 @@ class Workflow
     @morphemePluginCnt = 0
 
     #The third phase, supplement plug-ins, pos processors.
-    @posProcessors = nil
+    @posProcessors = []
 
     #The configuration file for the pos processors.
     @posProcessorConfFiles = []
@@ -74,7 +76,7 @@ class Workflow
     @baseDir = base_dir
   end
 
-  def set_morph_analyzer ma, configFile
+  def set_morph_analyzer( ma, configFile)
     @morphAnalyzer = ma
     @morphAnalyzerConfFile = @baseDir + "/" +configFile
   end
@@ -104,11 +106,11 @@ class Workflow
       end
 
       for i in 0..(@morphemePluginCnt-1) do
-        morphemeProcessors[i].second_initialize( @baseDir, @morphemeProcessorsConfFiles[i])
+        @morphemeProcessors[i].second_initialize( @baseDir, @morphemeProcessorsConfFiles[i])
         @queuePhase2 << Queue.new
       end
 
-      if posTagger == nil then
+      if @posTagger == nil then
         @outputPhaseNum = 2
         @outputQueueNum = @morphemePluginCnt
         return
@@ -233,6 +235,8 @@ class Workflow
 
       begin
         while true do
+          #아래의  pop에서 exception이 발생해야 끝난다.
+          #pop할 것이 없을때 exception이 발생하기 때문임.
           ps = inQueue1.pop(true)
           if (ps = @plainTextProcessors[i].do_process(ps)) != nil then
             outQueue1 << ps
@@ -249,6 +253,7 @@ class Workflow
           end
         end
       rescue Exception => e
+        #inQueue1의 아이템들이 모두 소진되었음 
       end
 
       #second phase
@@ -324,6 +329,8 @@ class Workflow
               outQueue3 << sent
             end
           end
+        rescue Exception => e
+          puts e
         end
       end
 
@@ -334,6 +341,22 @@ class Workflow
     @plainTextProcessorConfFiles[@plainTextPluginCnt] = @baseDir + "/" + configFile.to_s
     @plainTextProcessors[@plainTextPluginCnt] = plugin
     @plainTextPluginCnt += 1
+  end
+
+  ##
+	# Appends the morpheme processor plug-in, which is the supplement plug-in on the second phase, on the work flow.
+  def append_morpheme_processor(plugin, configFile)
+    @morphemeProcessorsConfFiles[@morphemePluginCnt] = @baseDir + "/" +configFile.to_s
+    @morphemeProcessors[@morphemePluginCnt] = plugin
+    @morphemePluginCnt+=1
+  end
+
+  ##
+  #Appends the POS processor plug-in, which is the supplement plug-in on the third phase, on the work flow.
+	def append_pos_processor(plugin, configFile)
+    @posProcessorConfFiles[@posPluginCnt] = @baseDir + "/" +configFile.to_s
+    @posProcessors[@posPluginCnt] = plugin
+    @posPluginCnt +=1
   end
 
   def get_result_of_document( a)
@@ -358,14 +381,19 @@ class Workflow
       end
 
       queue = @queuePhase3[@outputQueueNum]
-      while true do
-        sent = queue.pop
-        list << sent
+      begin
+        while true do
+          sent = queue.pop(true)
+          list << sent
 
-        if sent.is_end_of_document? then
-          break
+          if sent.is_end_of_document? then
+            break
+          end
         end
+      rescue Exception => e
+        puts e
       end
+
     else
       raise Exception.new
     end

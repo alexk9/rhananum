@@ -3,6 +3,7 @@ require "com/frostbean/rhannanum/plugin/PlaintextProcessor"
 class SentenceSegmentor
   include PlainTextProcessor
 
+  attr_accessor :document_id
   attr_reader :has_remaining_data
 
   def second_initialize base_dir, config_file
@@ -41,19 +42,19 @@ class SentenceSegmentor
         return nil
       end
 
-      if @document_id != ps.get_document_id then
-        @document_id = ps.get_document_id
+      if @document_id != ps.document_id then
+        @document_id = ps.document_id
         @sentence_id = 0
       end
 
       str = nil
 
-      if str = ps.get_sentence == nil then
+      if (str = ps.sentence) == nil then
         return nil
       end
 
       eojeols = str.split("\s")
-      @end_of_document = ps.is_end_of_document?
+      @end_of_document = ps.end_of_document
     end
 
     while is_eos == false and i < eojeols.length do
@@ -122,48 +123,54 @@ class SentenceSegmentor
             res += " " +eojeols[i]
           end
         end
-        i += 1
       end
+      i += 1
+    end
       i-=1
       j-=1
 
-      if is_eos  then
-        ##the remaining part of an eojeol after the end of sentence is stored in the buffer
-        #if j+1 < eojeols[i].length then
-        #  eojeols[i] = eojeols[i][j+1..-1]
-        #  @bufEojels = eojeols
-        #  @bufEojeolsIdx = i
-        #  @has_remaining_data = true
-        #else
-        #  if i == eojeols.length-1 then
-        #    #all eojeols were processed
-        #    @has_remaining_data = false
-        #  else
-        #    #if there were some eojeols not processed, they were stored in the buffer
-        #    @bufEojels = eojeols
-        #    @bufEojeolsIdx = i +1
-        #    @has_remaining_data = true
-        #  end
-        #end
-        #if @bufRes == nil then
-        #  @sentence_id +=1
-        #  return PlainSentence.new(@document_id, @sentence_id, !@has_remaining_data and @end_of_document, res )
-        #else
-        #  res = @bufRes + " " + res
-        #  @bufRes = nil
-        #  @sentence_id +=1
-        #  return PlainSentence.new(@document_id, @sentence_id, !@has_remaining_data and @end_of_document, res )
-        #end
-      else
-        if res != nil and res.length > 0 then
-          @bufRes = res
+    if is_eos  then
+      ##the remaining part of an eojeol after the end of sentence is stored in the buffer
+      #if j+1 < eojeols[i].length then
+      #  eojeols[i] = eojeols[i][j+1..-1]
+      #  @bufEojels = eojeols
+      #  @bufEojeolsIdx = i
+      #  @has_remaining_data = true
+      #else
+      #  if i == eojeols.length-1 then
+      #    #all eojeols were processed
+      #    @has_remaining_data = false
+      #  else
+      #    #if there were some eojeols not processed, they were stored in the buffer
+      #    @bufEojels = eojeols
+      #    @bufEojeolsIdx = i +1
+      #    @has_remaining_data = true
+      #  end
+      #end
+      #if @bufRes == nil then
+      #  @sentence_id +=1
+      #  return PlainSentence.new(@document_id, @sentence_id, !@has_remaining_data and @end_of_document, res )
+      #else
+      #  res = @bufRes + " " + res
+      #  @bufRes = nil
+      #  @sentence_id +=1
+      #  return PlainSentence.new(@document_id, @sentence_id, !@has_remaining_data and @end_of_document, res )
+      #end
+    else
+      if res != nil and res.length > 0 then
+        @bufRes = res
 
-        end
-        @has_remaining_data = false
-        return nil
       end
+      @has_remaining_data = false
+      return nil
     end
   end
+  
+    
+  def has_remaining_data? 
+    return @has_remaining_data
+  end
+
 
   private
 

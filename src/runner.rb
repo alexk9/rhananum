@@ -1,6 +1,8 @@
 # encoding: utf-8
 $: << File.join(File.expand_path(File.dirname(__FILE__)))
 
+
+
 require "com/frostbean/rhannanum/comm/Sentence"
 require "com/frostbean/rhannanum/hannanum/WorkflowFactory"
 
@@ -12,7 +14,7 @@ workflow.analyze(document)
 #test
 result_list = workflow.get_result_of_document( Sentence.new(0, 0, false))
 
-for s in resultList do
+for s in result_list do
   eojeolArray = s.get_eojeols
 
   for i in 0..(eojeolArray.length-1) do

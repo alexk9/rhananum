@@ -1,5 +1,10 @@
 require "com/frostbean/rhannanum/hannanum/Workflow"
 require "com/frostbean/rhannanum/plugin/SentenceSegmentor"
+require "com/frostbean/rhannanum/plugin/InformalSentenceFilter"
+require "com/frostbean/rhannanum/plugin/ChartMorphAnalyzer"
+require "com/frostbean/rhannanum/plugin/UnknownProcessor"
+require "com/frostbean/rhannanum/plugin/HMMTagger"
+require "com/frostbean/rhannanum/plugin/NounExtractor"
 
 class WorkflowFactory
 
@@ -11,13 +16,13 @@ class WorkflowFactory
     case workflowFlag
       when WORKFLOW_NOUN_EXTRACTOR then
         workflow.append_plain_text_processor( SentenceSegmentor.new, nil)
-        #workflow.appendPlainTextProcessor(new InformalSentenceFilter(), null);
+        workflow.append_plain_text_processor( InformalSentenceFilter.new, nil)
 
-        #workflow.setMorphAnalyzer(new ChartMorphAnalyzer(), "conf/plugin/MajorPlugin/MorphAnalyzer/ChartMorphAnalyzer.json");
-        #workflow.appendMorphemeProcessor(new UnknownProcessor(), null);
+        workflow.set_morph_analyzer( ChartMorphAnalyzer.new, "conf/plugin/MajorPlugin/MorphAnalyzer/ChartMorphAnalyzer.json");
+        workflow.append_morpheme_processor( UnknownProcessor.new, nil);
 
-        #workflow.setPosTagger(new HMMTagger(), "conf/plugin/MajorPlugin/PosTagger/HmmPosTagger.json");
-        #workflow.appendPosProcessor(new NounExtractor(), null);
+        workflow.set_pos_tagger(HMMTagger.new, "conf/plugin/MajorPlugin/PosTagger/HmmPosTagger.json");
+        workflow.append_pos_processor(NounExtractor.new, nil)
     end
 
     return workflow
