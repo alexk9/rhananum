@@ -24,7 +24,7 @@ class ProbabilityDBM
 
 
 	def init(fileName)
-		f = File.open(fileName)
+		f = File.open(fileName,"r:utf-8")
     line = nil
 
     begin

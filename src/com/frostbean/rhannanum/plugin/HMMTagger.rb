@@ -1,3 +1,4 @@
+#encoding:utf-8
 require "com/frostbean/rhannanum/plugin/PosTagger"
 require "com/frostbean/rhannanum/plugin/ProbabilityDBM"
 
@@ -120,8 +121,15 @@ class HMMTagger
       aNodeForMM << MNode.new
     end
     iLastIdxOfMM = 1
-    
-    json_hash = JSON.parse( File.read(baseDir+"/"+ configFile) )
+
+    content = ""
+
+    f = File.open(baseDir+"/"+ configFile,"r:utf-8")
+    f.each_line do |line|
+      content += line
+    end
+
+    json_hash = JSON.parse( content )
     @PWT_POS_TDBM_FILE = baseDir + "/"+ json_hash["pwt.pos"]
     @PTT_POS_TDBM_FILE = baseDir + "/" + json_hash["ptt.pos"]
     @PTT_WP_TDBM_FILE = baseDir + "/" + json_hash["ptt.wp"]
