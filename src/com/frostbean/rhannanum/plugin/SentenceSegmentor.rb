@@ -1,4 +1,5 @@
 require "com/frostbean/rhannanum/plugin/PlaintextProcessor"
+require "unicode_utils"
 
 class SentenceSegmentor
   include PlainTextProcessor
@@ -78,7 +79,7 @@ class SentenceSegmentor
                 next
               elsif j > 0
                 #축약어
-                if ca[j-1]==ca[j-1].downcase or ca[j-1]==ca[j-1].upcase then
+                if UnicodeUtils.uppercase_char?(ca[j-1]) or UnicodeUtils.lowercase_char?(ca[j-1]) then
                   next
                 end
               elsif j < ca.length-1 then
@@ -102,8 +103,7 @@ class SentenceSegmentor
             else
               res += " " + eojeols[i][0,j] + " " + ca[j]
             end
-          end
-
+                       
           #a sequence of symbols such as '...', '?!!'
           while j< ca.length-1 do
             if is_symbol?( ca[j+1]) then
@@ -113,6 +113,9 @@ class SentenceSegmentor
               break
             end
           end
+
+          end
+
           j += 1
         end
         if is_eos  == false then
@@ -126,36 +129,39 @@ class SentenceSegmentor
       end
       i += 1
     end
-      i-=1
-      j-=1
+    #i=6, j=4
+    i-=1
+    j-=1
 
     if is_eos  then
       ##the remaining part of an eojeol after the end of sentence is stored in the buffer
-      #if j+1 < eojeols[i].length then
-      #  eojeols[i] = eojeols[i][j+1..-1]
-      #  @bufEojels = eojeols
-      #  @bufEojeolsIdx = i
-      #  @has_remaining_data = true
-      #else
-      #  if i == eojeols.length-1 then
-      #    #all eojeols were processed
-      #    @has_remaining_data = false
-      #  else
-      #    #if there were some eojeols not processed, they were stored in the buffer
-      #    @bufEojels = eojeols
-      #    @bufEojeolsIdx = i +1
-      #    @has_remaining_data = true
-      #  end
-      #end
-      #if @bufRes == nil then
-      #  @sentence_id +=1
-      #  return PlainSentence.new(@document_id, @sentence_id, !@has_remaining_data and @end_of_document, res )
-      #else
-      #  res = @bufRes + " " + res
-      #  @bufRes = nil
-      #  @sentence_id +=1
-      #  return PlainSentence.new(@document_id, @sentence_id, !@has_remaining_data and @end_of_document, res )
-      #end
+      if j+1 < eojeols[i].length then
+        eojeols[i] = eojeols[i][j+1..-1]
+        @bufEojels = eojeols
+        @bufEojeolsIdx = i
+        @has_remaining_data = true
+      else
+        if i == eojeols.length-1 then
+          #all eojeols were processed
+          @has_remaining_data = false
+        else
+          #if there were some eojeols not processed, they were stored in the buffer
+          @bufEojels = eojeols
+          @bufEojeolsIdx = i +1
+          @has_remaining_data = true
+        end
+      end
+      if @bufRes == nil then
+        arg_sentence_id = @sentence_id
+        @sentence_id+=1
+        return PlainSentence.new(@document_id, arg_sentence_id, (!@has_remaining_data and @end_of_document), res )
+      else
+        res = @bufRes + " " + res
+        @bufRes = nil
+        arg_sentence_id = @sentence_id
+        @sentence_id +=1
+        return PlainSentence.new(@document_id, arg_entence_id, (!@has_remaining_data and @end_of_document), res )
+      end
     else
       if res != nil and res.length > 0 then
         @bufRes = res

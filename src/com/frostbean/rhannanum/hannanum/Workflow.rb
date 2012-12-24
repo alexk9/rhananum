@@ -154,7 +154,7 @@ class Workflow
       return nil
     end
 
-    for i in 0..(strArray.length-1) do
+    for i in 0..(strArray.length-2) do
       queue << PlainSentence.new(0,i,false,strArray[i].rstrip)
     end
 
@@ -254,87 +254,89 @@ class Workflow
         end
       rescue Exception => e
         #inQueue1의 아이템들이 모두 소진되었음 
+        puts e.to_s+"@Workflow.rb"
       end
+    end
 
-      #second phase
+    #second phase
 
-      if @morphAnalyzer == nil then
-        return
+    if @morphAnalyzer == nil then
+      return
+    end
+
+    inQueue1 = outQueue1
+    outQueue2 = @queuePhase2[0]
+
+    begin
+      while true do
+        ps = inQueue1.pop(true)
+        if (sos = @morphAnalyzer.morph_analyze(ps)) != nil then
+          outQueue2 << sos
+        end
       end
+    rescue Exception => e
+      puts e
+    end
 
-      inQueue1 = outQueue1
-      outQueue2 = @queuePhase2[0]
+    if @morphemePluginCnt == 0 then
+      return
+    end
+
+    for i in 0..(@morphemePluginCnt-1) do
+      inQueue2 = @queuePhase2[i+1]
 
       begin
         while true do
-          ps = inQueue1.pop(true)
-          if (sos = @morphAnalyzer.morph_analyze(ps)) != nil then
+          sos= inQueue2.pop(true)
+          if (sos = @morphemeProcessors[i].do_process(sos))!= nil then
             outQueue2 << sos
           end
         end
       rescue Exception => e
-
       end
 
-      if @morphemePluginCnt == 0 then
-        return
-      end
+    end
 
-      for i in 0..(@morphemePluginCnt-1) do
-        inQueue2 = @queuePhase2[i+1]
+    #third phase
+    if @posTagger == nil then
+      return
+    end
 
-        begin
-          while true do
-            sos= inQueue2.pop(true)
-            if (sos = @morphemeProcessors[i].do_process(sos))!= nil then
-              outQueue2 << sos
-            end
-          end
-        rescue Exception => e
+    inQueue2 = outQueue2
+    outQueue3 = @queuePhase3[0]
+
+    begin
+      while true do
+        sos = inQueue2.pop(true)
+        if (sent = @posTagger.tag_POS(sos))!= nil then
+          outQueue3 << sent
         end
-
       end
+    rescue Exception => e
 
-      #third phase
-      if @posTagger == nil then
-        return
-      end
+    end
 
-      inQueue2 = outQueue2
-      outQueue3 = @queuePhase3[0]
+    if @posPluginCnt == 0 then
+      return
+    end
+
+    for i in 0..(@posPluginCnt-1) do
+      inQueue3 = outQueue3
+      outQueue3 = @queuePhase3[i+1]
 
       begin
         while true do
-          sos = inQueue2.pop(true)
-          if (sent = @posTagger.tag_POS(sos))!= nil then
+          sent = inQueue3.pop(true)
+          if (sent=@posProcessors[i].do_process(sent))!= nil then
             outQueue3 << sent
           end
         end
       rescue Exception => e
-
+        puts e
       end
-
-      if @posPluginCnt == 0 then
-        return
-      end
-
-      for i in 0..(@posPluginCnt-1) do
-        inQueue3 = outQueue3
-        outQueue3 = @queuePhase3[i+1]
-
-        begin
-          while true do
-            sent = inQueue3.pop(true)
-            if (sent=@posProcessors[i].do_process(sent))!= nil then
-              outQueue3 << sent
-            end
-          end
-        rescue Exception => e
-          puts e
-        end
-      end
-
     end
+
+    
   end
 
   def append_plain_text_processor (plugin, configFile)

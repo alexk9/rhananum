@@ -22,7 +22,7 @@ class InformalSentenceFilter
     
     for word in tokens do
       #문자열의 길이가 최대 허용치보다 길다면...
-      if word.length() > REPEAD_CHAR_ALLOWD then
+      if word.length() > REPEAT_CHAR_ALLOWED then
         repaedCnt = 0
         checkChar = word[0]
         
@@ -67,7 +67,7 @@ class InformalSentenceFilter
   def shutdown
   end
   
-  def has_remaining_data
+  def has_remaining_data?
     return false
   end
 end

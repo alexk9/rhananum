@@ -84,7 +84,7 @@ class ChartMorphAnalyzer < MorphAnalyzer
   # @return all the possible morphological analysis results
   def morph_analyze(ps    )
     plainEojeol = nil
-    plainEojeols = ps.sentence.split(/[ ]\t/)
+    plainEojeols = ps.sentence.split(/[ \t]/)
     eojeolNum = plainEojeols.length
     
     plainEojeolArray = []
