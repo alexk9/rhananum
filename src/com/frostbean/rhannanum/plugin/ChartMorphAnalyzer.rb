@@ -1,4 +1,5 @@
 require "com/frostbean/rhannanum/plugin/MorphAnalyzer"
+require "com/frostbean/rhannanum/plugin/AnalyzedDic"
 require "json"
 
 ##
@@ -35,15 +36,15 @@ class ChartMorphAnalyzer < MorphAnalyzer
     #The file path for the pre-analyzed dictionary. */
     @fileDicAnalyzed = ""
     #The file path for the default morpheme dictionary. */
-    fileDicSystem = ""
+    @fileDicSystem = ""
     #The file path for the user morpheme dictionary. */
-    fileDicUser = ""
+    @fileDicUser = ""
     #The file path for the tag set. */
-    fileTagSet = ""
+    @fileTagSet = ""
     #Eojeol list */
-    eojeolList = []
+    @eojeolList = []
     #Post-processor to deal with some exceptions 
-    postProc = nil
+    @postProc = nil
   end
   
   def get_name
@@ -51,8 +52,8 @@ class ChartMorphAnalyzer < MorphAnalyzer
   end
   
   def process_eojeol( plainEojeol)
-    analysis = analyzedDic.get(plainEojeol)
-    eojeolList.clear
+    analysis = @analyzedDic.get(plainEojeol)
+    @eojeolList.clear
     
     if analysis != nil then
       #the eojeol was registered in the pre-analyzed dictionary
@@ -68,15 +69,15 @@ class ChartMorphAnalyzer < MorphAnalyzer
           tags << tokens[i*2+1]
         end
         eojeol = Eojeol.new(morphemes, tags)
-        eojeolList << eojeol
+        @eojeolList << eojeol
         
       end
     else
-      chart.init(plainEojeol)
-      chart.analyze()
-      chart.get_result()
+      @chart.init(plainEojeol)
+      @chart.analyze()
+      @chart.get_result()
     end
-    return eojeolList            
+    return @eojeolList
   end
   
   ##
@@ -95,46 +96,52 @@ class ChartMorphAnalyzer < MorphAnalyzer
       eojeolSetArray << process_eojeol(plainEojeol)
     end
     
-    sos = SetOfSentences.new(ps.document_id, ps.sentence_id, ps.end_of_document, plainEojeolArray, eojeolSetArray)    
-    sos = postProc.do_post_processing(sos)
+    sos = SetOfSentences.new(ps.document_id, ps.sentence_id, ps.end_of_document, plainEojeolArray, eojeolSetArray)
+    sos = @postProc.do_post_processing(sos)
     return sos
   end
   
   def second_initialize( baseDir, configFile)
-    json_hash = JSON.parse(configFile)
-    
-    fileDicSystem = baseDir + "/" + json_hash["dic_system"]
-    fileDicUser = baseDir + "/" +json_hash["dic_user"]
-    fileConnections = baseDir + "/" + json_hash["connections"]
-    fileConnectionsNot = baseDir + "/" + json_hash["connections_not"]
-    fileDicAnalyzed = baseDir + "/" + json_hash["dic_analyzed"]
-    fileTagSet = baseDir + "/" + json_hash["tagset"]
-    
-    tagSet = TagSet.new
-    tagSet.init(fileTagSet, TagSet:TAG_SET_KAIST)
-    
-    connection = Connection.new
-    connection.init(fileConnetions, tagSet.get_tag_count, tagSet)
-    
-    connectionNot = ConnectionNot.new
-    connectionNot.init(fileConnectionsNot, tagSet)
-    
-    analyzedDic = AnalyzedDic.new
-    analyzedDic.read_dic(fileDicSystem,tagSet)
-    
-    systemDic = Trie.new(Trie:DEFAULT_TRIE_BUF_SYZE_SYS)
-    systemDic.read_dic(fileDicSystem,tagSet)
+    f = File.open(configFile,"r:utf-8")
+    content=""
+    f.each_line do |line|
+      content += line
+    end
 
-    userDic = Trie(Trie.DEFAULT_TRIE_BUF_SIZE_USER)
-    userDic.read_dic(fileDicUser, tagSet)
-
-    numDic = NumberDic.new
-    simti = Simti.new
-    simti.init()
-    eojeolList = []
+    json_hash = JSON.parse(content)
     
-    chart = MorphemeChart.new(tagSet, connection, systemDic, userDic, numDic, simti, eojeolList)
-    postProc = PostProcessor.new
+    @fileDicSystem = baseDir + "/" + json_hash["dic_system"]
+    @fileDicUser = baseDir + "/" +json_hash["dic_user"]
+    @fileConnections = baseDir + "/" + json_hash["connections"]
+    @fileConnectionsNot = baseDir + "/" + json_hash["connections_not"]
+    @fileDicAnalyzed = baseDir + "/" + json_hash["dic_analyzed"]
+    @fileTagSet = baseDir + "/" + json_hash["tagset"]
+    
+    @tagSet = TagSet.new
+    @tagSet.init(@fileTagSet, TagSet:TAG_SET_KAIST)
+    
+    @connection = Connection.new
+    @connection.init(@fileConnetions, tagSet.get_tag_count, tagSet)
+    
+    @connectionNot = ConnecionNot.new
+    @connectionNot.init(@fileConnectionsNot, tagSet)
+    
+    @analyzedDic = AnalyzedDic.new
+    @analyzedDic.read_dic(@fileDicSystem,tagSet)
+    
+    @systemDic = Trie.new(Trie:DEFAULT_TRIE_BUF_SYZE_SYS)
+    @systemDic.read_dic(@fileDicSystem,tagSet)
+
+    @userDic = Trie(Trie.DEFAULT_TRIE_BUF_SIZE_USER)
+    @userDic.read_dic(@fileDicUser, tagSet)
+
+    @numDic = NumberDic.new
+    @simti = Simti.new
+    @simti.init()
+    @eojeolList = []
+    
+    @chart = MorphemeChart.new(@tagSet, @connection, @systemDic, @userDic, @numDic, @simti, @eojeolList)
+    @postProc = PostProcessor.new
   end
   
   def shutdown()

@@ -25,25 +25,23 @@ class ProbabilityDBM
 
 	def init(fileName)
 		f = File.open(fileName,"r:utf-8")
-    line = nil
+    line = ""
 
-    begin
-      while ( line = f.readline )!= nil do
-        tokens = line.split(" ")
-        numbers = Array.new(tokens.length-1)
 
-        for i in 0..(tokens.length-2) do
-          numbers[i] = tokens[i+1].to_f
-        end
+    while f.eof? == false  do
+      line = f.readline
+      tokens = line.split(" ")
+      numbers = Array.new(tokens.length-1)
 
-        if tokens == nil or tokens[0] == nil or numbers == nil then
-          puts "hi"
-        end
-
-        @table[tokens[0]] = numbers
+      for i in 0..(tokens.length-2) do
+        numbers[i] = tokens[i+1].to_f
       end
-    rescue EOFError => e
-      puts e
+
+      if tokens == nil or tokens[0] == nil or numbers == nil then
+        puts "hi"
+      end
+
+      @table[tokens[0]] = numbers
     end
 
   end

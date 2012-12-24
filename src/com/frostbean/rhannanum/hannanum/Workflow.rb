@@ -105,6 +105,10 @@ class Workflow
         return
       end
 
+      # initialize the second phase major plug-in and the communication queue
+      @morphAnalyzer.second_initialize(@baseDir, @morphAnalyzerConfFile)
+			@queuePhase2 << Queue.new
+
       for i in 0..(@morphemePluginCnt-1) do
         @morphemeProcessors[i].second_initialize( @baseDir, @morphemeProcessorsConfFiles[i])
         @queuePhase2 << Queue.new
