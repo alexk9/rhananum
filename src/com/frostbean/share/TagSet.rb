@@ -186,7 +186,7 @@ class TagSet
         tag_toks = toks[2].split(/ /)
 
         for tagToken in tag_toks do
-          tagNumber = @tagList.index(tagToken)
+          tagNumber = @tagList.index(tagToken.rstrip)
 
           if tagNumber != nil then
             tempTagNumbers << tagNumber
