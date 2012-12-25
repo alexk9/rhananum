@@ -3,6 +3,8 @@
 # This class is for the connection rules of morphemes. It is used to check whether the morphemes
 # can appear consecutively.
 
+require "set"
+
 class Connection
 	def initialize
 		@title = ""
@@ -47,8 +49,8 @@ class Connection
 
 
   def read_file( filePath, tagCount, tagSet)
-    tagSetA = {}
-    tagSetB = {}
+    tagSetA = Set.new
+    tagSetB = Set.new
 
 		@title = ""
 		@version = ""
@@ -94,77 +96,67 @@ class Connection
         end
       elsif "CONNECTION"== lineToken then
 				lineToken = tokens[1]
-        tagLists = lineToken.split(/\\*/,2)
+        tagLists = lineToken.split(/\*/,2)
 
         tag_tokens = tagLists[0].split(/[,()]/)
 
         tag_tokens.each { |tagToken|
           tok = tagToken.split(/-/)
           for x in 0..(tok.size-1) do
-            t = tok[x]
-            fullTagIDSet = tagSet[t]
+            t = tok[x].rstrip
+            fullTagIDSet = tagSet.get_tags(t)
             if fullTagIDSet != nil then
-              for i in 0..(fullTagIDSet.size -1) do
+              for i in 0..(fullTagIDSet.size() -1) do
                 tagSetA << fullTagIDSet[i]
               end
             else
               tagSetA << tagSet.get_tag_id(t)
             end
 
-            for y in x..(tok.size-1) do
+            for y in (x+1)..(tok.size()-1) do
               tagSetA.delete(tagSet.get_tag_id(tok[y]))
-              x = y
             end
+            break
           end
         }
 
-        tagTokenizer = tagLists[1].split(/[,()]/)
+        tagTokenizer = tagLists[1].split(/[,()]/).delete_if{|item| item.empty?}
 
-        #
-				#tagTokenizer = new StringTokenizer(tagLists[1], ",()");
-				#while (tagTokenizer.hasMoreTokens()) {
-				#	String tagToken = tagTokenizer.nextToken();
-        #
-				#	StringTokenizer tok = new StringTokenizer(tagToken, "-");
-				#	while (tok.hasMoreTokens()) {
-				#		String t = tok.nextToken();
-				#		int[] fullTagIDSet = tagSet.getTags(t);
-        #
-				#		if (fullTagIDSet != null) {
-				#			for (int i = 0; i < fullTagIDSet.length; i++) {
-				#				tagSetB.add(fullTagIDSet[i]);
-				#			}
-				#		} else {
-				#			tagSetB.add(tagSet.getTagID(t));
-				#		}
-				#		while (tok.hasMoreTokens()) {
-				#			tagSetB.remove(tagSet.getTagID(tok.nextToken()));
-				#		}
-				#	}
-				#}
+        for tagToken in tagTokenizer do
+				  tok = tagToken.split(/-/).delete_if{|item| item.rstrip.empty?}
+          for t_idx in 0..(tok.length-1) do
+            t = tok[t_idx]
+						fullTagIDSet = tagSet.get_tags(t);
 
-	#			Iterator<Integer> iterA = tagSetA.iterator();
-  #
-	#			while (iterA.hasNext()) {
-	#				int leftSide = iterA.next();
-	#				Iterator<Integer> iterB = tagSetB.iterator();
-  #
-	#				while (iterB.hasNext()) {
-	#					connectionTable[leftSide][iterB.next()] = true;
-	#				}
-	#			}
-  #
-	#			tagSetA.clear();
-	#			tagSetB.clear();
-	#		} else if ("START_TAG".equals(lineToken)) {
-	#			startTag = lineTokenizer.nextToken();
-	#		}
-	#	}
-	#	br.close();
-	#}
-      end
-    end
-  end
+						if (fullTagIDSet != nil) then
+							for i in 0..(fullTagIDSet.length-1) do
+								tagSetB << fullTagIDSet[i]
+							end
+						else
+							tagSetB << tagSet.get_tag_id(t)
+            end
+            for t_idx2 in (t_idx+1)..(tok.length-1) do
+							tagSetB.delete(tagSet.get_tag_id(tok[t_idx2]) )
+            end
+            #for t_idx2루프를끝내고나면 탈출한다.
+            break
+					end
+				end
+
+
+        for leftSide in tagSetA do
+				  for b_side in tagSetB do
+						@connectionTable[leftSide][b_side] = true;
+					end
+				end
+
+				tagSetA.clear
+				tagSetB.clear
+			elsif ("START_TAG" == lineToken) then
+				@startTag = tokens[1]
+			end
+		end
+	end
 end
 
 
