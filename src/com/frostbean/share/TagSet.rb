@@ -180,7 +180,7 @@ class TagSet
 				end
       elsif toks[0] == "TAG" then
         @tagList << toks[1]
-      elsif tok[0] == "TSET" then
+      elsif toks[0] == "TSET" then
         tagSetName = toks[1]
 
         tag_toks = toks[2].split(/ /)
@@ -204,8 +204,8 @@ class TagSet
         for i in 0..(tempTagNumbers.size-1) do
           tagNumbers[i] = tempTagNumbers[i]
         end
-				tagSetMap[tagSetName] = tagNumbers
-        tempTagNumbers.claer
+				@tagSetMap[tagSetName] = tagNumbers
+        tempTagNumbers.clear
       elsif "IRR" == toks[0] then
         @irregularList << toks[1]
       end
@@ -219,7 +219,7 @@ class TagSet
     @numTag = @tagList.index("nnc")
 
     @irr_type_b = get_irregular_id("irrb")
-    @irr_type_s = get_irregular_ud("irrs")
+    @irr_type_s = get_irregular_id("irrs")
     @irr_type_d = get_irregular_id("irrd")
     @irr_type_h = get_irregular_id("irrh")
     @irr_type_reu = get_irregular_id("irrlu")
@@ -245,7 +245,7 @@ class TagSet
 
       list << @tagList.index("px")
 
-      @tagTypeTable[TAG_TYPE_VERBS] = Array.new[list.size]
+      @tagTypeTable[TAG_TYPE_VERBS] = Array.new(list.size)
 
       for i in 0..(list.size-1) do
         @tagTypeTable[TAG_TYPE_VERBS][i] = list[i]
@@ -254,7 +254,7 @@ class TagSet
 			list.clear
 
 			#noun
-      @tagTypeTable[TAG_TYPE_NOUNS] @tagSetMap["n"]
+      @tagTypeTable[TAG_TYPE_NOUNS] = @tagSetMap["n"]
 
 			# nps
 			@tagTypeTable[TAG_TYPE_NPS] = @tagSetMap["np"]
@@ -267,7 +267,7 @@ class TagSet
 
 			#yongs
 			values = @tagSetMap["p"]
-      value.each { |a_value|
+      values.each { |a_value|
         list << a_value
       }
 
@@ -294,7 +294,7 @@ class TagSet
 			@tagTypeTable[TAG_TYPE_JP] = [@tagList.index("jp")]
 
 			# nbnp
-			@tagTypeTable[TAG_TYPE_NBNP] = [@tagList.index("nbn"),@tagList.index("npd"),@tagList.index("npp"))
+			@tagTypeTable[TAG_TYPE_NBNP] = [@tagList.index("nbn"),@tagList.index("npd"),@tagList.index("npp")]
 
 			# josa
 			@tagTypeTable[TAG_TYPE_JOSA] = [@tagList.index("jxc"), @tagList.index("jco"),@tagList.index("jca"),@tagList.index("jcm"),@tagList.index("jcs"),@tagList.index("jcc")]

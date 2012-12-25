@@ -1,3 +1,4 @@
+require "com/frostbean/share/Code"
 
 class Trie
 
@@ -39,8 +40,8 @@ class Trie
       @trie_buf[i] = TNODE.new
     end
 
-		@free_head = trie_buf[FREE_NODE].free
-		@node_head = trie_buf[FREE_NODE]
+		@free_head = @trie_buf[FREE_NODE].free
+		@node_head = @trie_buf[FREE_NODE]
 
 		@node_head.key = 0
 		@node_head.child_size = 0
@@ -213,7 +214,7 @@ class Trie
 	#		pw.print("\t");
 	#	}
 	#	pw.print(idx + ":" + Code.toCompatibilityJamo(trie_buf[idx].key) + " ");
-	#	if (trie_buf[idx].info_list != null) {
+	#	if (trie_buf[idx].info_list != nil) {
 	#		for (int k = 0; k < trie_buf[idx].info_list.size(); k++) {
 	#			pw.print("t:" + tagSet.getTagName(trie_buf[idx].info_list.get(k).tag) + " ");
 	#		}
@@ -257,7 +258,7 @@ class Trie
         if tok2.size >1 then
           info_list[isize].phoneme = tagSet.get_irregular_id(tok2[1])
         else
-          info_list[isize].phoneme = TagSet:PHONEME_TYPE_ALL
+          info_list[isize].phoneme = TagSet::PHONEME_TYPE_ALL
         end
         info_list[isize].tag = x
         isize+=1
@@ -335,7 +336,7 @@ class Trie
 			end
 		end
 
-		if @trie_buf[nidx].info_list == null or @trie_buf[nidx].info_list.size() == 0 then
+		if @trie_buf[nidx].info_list == nil or @trie_buf[nidx].info_list.size() == 0 then
 			return 0
 		else
 			return @search_end
@@ -358,7 +359,7 @@ class Trie
 			parent = @trie_buf[@search_idx[@search_end - 1]]
 		end
 
-		while widx < word.length then
+		while widx < word.length do
 			c = word[widx]
 			cs = parent.child_size
 			if cs == 0 then
@@ -369,9 +370,9 @@ class Trie
 				@trie_buf[new_index].child_size = 0
 				parent.child_size = 1
 				parent.child_idx = new_index
-				search_idx[search_end] = new_index
-				search_key[search_end] = c
-				search_end+=1
+				@search_idx[@search_end] = new_index
+				@search_key[@search_end] = c
+				@search_end+=1
 				widx+=1
 				parent = @trie_buf[new_index]
 			else
@@ -379,19 +380,20 @@ class Trie
 				new_index = node_alloc(cs + 1)
 				child_index = parent.child_idx
 				for i in 0..(cs-1) do
-					if @trie_buf[child_index + i].key < c then
-						tmp = @trie_buf[new_index + i]
-						@trie_buf[new_index + i] = @trie_buf[child_index + i]
-						@trie_buf[child_index + i] = tmp
-					else
-						break
-					end
+          #아래버그있어서주석처리2012/12/24
+					#if @trie_buf[child_index + i].key < c then
+					#	tmp = @trie_buf[new_index + i]
+					#	@trie_buf[new_index + i] = @trie_buf[child_index + i]
+					#	@trie_buf[child_index + i] = tmp
+					#else
+					#	break
+					#end
 				end
 				@trie_buf[new_index + i].key = c
 				@trie_buf[new_index + i].child_idx = 0
 				@trie_buf[new_index + i].child_size = 0
-				@search_idx[search_end]	= new_index + i
-				@search_key[search_end]	= c
+				@search_idx[@search_end]	= new_index + i
+				@search_key[@search_end]	= c
 				@search_end+=1
 				widx+=1
 
@@ -404,7 +406,7 @@ class Trie
         end
 
 				parent.child_idx = new_index
-				parent.child_size = cs + 1)
+				parent.child_size = cs + 1
 
 				node_free(child_index, cs)
 				parent = @trie_buf[new_index + i]
@@ -416,11 +418,11 @@ class Trie
 			parent.info_list = []
 		end
 
-		in = INFO.new
-		in.phoneme = inode.phoneme
-		in.tag = inode.tag
+		ind = INFO.new
+		ind.phoneme = inode.phoneme
+		ind.tag = inode.tag
 
-		parent.info_list << in
+		parent.info_list << ind
 
 		return 0
 	end

@@ -3,6 +3,7 @@
 class Simti
 
 	class HEADI
+    attr_accessor :n_size, :f_size, :s_node,:s_free
 		def initialize
 		  @s_free = ST_FREE.new
 		  @s_node = ST_NODE.new
@@ -12,6 +13,7 @@ class Simti
 	end
 
 	class ST_FREE
+    attr_accessor :size, :next
     def initialize
       @size = 0
       @next = 0
@@ -19,6 +21,7 @@ class Simti
   end
 
 	class ST_NF
+    attr_accessor :node, :free
 		def initialize
 		  @node = ST_NODE.new
       @free = ST_FREE.new
@@ -27,6 +30,7 @@ class Simti
 
 
 	class ST_NODE
+    attr_accessor :K, :CS, :I, :child
     def initialize
       @K = ""
       @CS = ""
@@ -270,20 +274,20 @@ class Simti
 	def init()
 		search_end = 0
 
-		head.n_size = ST_NF_DEFAULT
-		head.f_size = ST_NF_DEFAULT - 1
+		@head.n_size = ST_NF_DEFAULT
+		@head.f_size = ST_NF_DEFAULT - 1
 
-		head.s_node.K = 0
-		head.s_node.CS = 0
-		head.s_node.I = 0
-		head.s_node.child = 0
+		@head.s_node.K = 0
+		@head.s_node.CS = 0
+		@head.s_node.I = 0
+		@head.s_node.child = 0
 
-		head.s_free.size = 0
-		head.s_free.next = 1
+		@head.s_free.size = 0
+		@head.s_free.next = 1
 
 		# nf[0] is not used */
-		nf[1].free.size = ST_NF_DEFAULT - 1
-		nf[1].free.next = 0
+		@nf[1].free.size = ST_NF_DEFAULT - 1
+		@nf[1].free.next = 0
 	end
 
 	def insert( word,  arg_I)
@@ -355,7 +359,7 @@ class Simti
           j+=1
         end
 				parent.child = new_index
-				parent.CS = cs + 1)
+				parent.CS = cs + 1
 				free(child_index, cs)
 
 				parent = @nf[new_index + i].node
@@ -375,7 +379,7 @@ class Simti
 	end
 
 	def lookup( word,  i_buffer)
-		i=
+		i= 0
 		if search(word) == 0 then
 			return 0
 		else
@@ -387,8 +391,8 @@ class Simti
 	end
 
 	def nextkey( word)
-		i, index, cs =
-		parent =
+		i, index, cs =0
+		parent = nil
 
 		if @search_end <= 0 then
 			return 0

@@ -1,5 +1,13 @@
 require "com/frostbean/rhannanum/plugin/MorphAnalyzer"
 require "com/frostbean/rhannanum/plugin/AnalyzedDic"
+require "com/frostbean/rhannanum/plugin/Connection"
+require "com/frostbean/rhannanum/plugin/ConnecionNot"
+require "com/frostbean/rhannanum/plugin/Trie"
+require "com/frostbean/rhannanum/plugin/NumberDic"
+require "com/frostbean/rhannanum/plugin/Simti"
+require "com/frostbean/share/TagSet"
+require "com/frostbean/rhannanum/plugin/MorphemeChart"
+require "com/frostbean/rhannanum/plugin/PostProcessor"
 require "json"
 
 ##
@@ -118,22 +126,22 @@ class ChartMorphAnalyzer < MorphAnalyzer
     @fileTagSet = baseDir + "/" + json_hash["tagset"]
     
     @tagSet = TagSet.new
-    @tagSet.init(@fileTagSet, TagSet:TAG_SET_KAIST)
+    @tagSet.init(@fileTagSet, TagSet::TAG_SET_KAIST)
     
     @connection = Connection.new
-    @connection.init(@fileConnetions, tagSet.get_tag_count, tagSet)
+    @connection.init(@fileConnections, @tagSet.get_tag_count, @tagSet)
     
     @connectionNot = ConnecionNot.new
-    @connectionNot.init(@fileConnectionsNot, tagSet)
+    @connectionNot.init(@fileConnectionsNot, @tagSet)
     
     @analyzedDic = AnalyzedDic.new
-    @analyzedDic.read_dic(@fileDicSystem,tagSet)
+    @analyzedDic.read_dic(@fileDicAnalyzed)
     
-    @systemDic = Trie.new(Trie:DEFAULT_TRIE_BUF_SYZE_SYS)
-    @systemDic.read_dic(@fileDicSystem,tagSet)
+    @systemDic = Trie.new(Trie::DEFAULT_TRIE_BUF_SIZE_SYS)
+    @systemDic.read_dic(@fileDicSystem,@tagSet)
 
-    @userDic = Trie(Trie.DEFAULT_TRIE_BUF_SIZE_USER)
-    @userDic.read_dic(@fileDicUser, tagSet)
+    @userDic = Trie.new(Trie::DEFAULT_TRIE_BUF_SIZE_USER)
+    @userDic.read_dic(@fileDicUser, @tagSet)
 
     @numDic = NumberDic.new
     @simti = Simti.new

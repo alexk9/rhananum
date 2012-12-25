@@ -17,8 +17,8 @@ class AnalyzedDic
     return @dictionary[item]
   end
 
-  def readDic(dictionaryFileName)
-		dictionary.clear()
+  def read_dic(dictionaryFileName)
+		@dictionary.clear()
 		str=""
 
     f = File.open(dictionaryFileName,"r:utf-8")

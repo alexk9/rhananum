@@ -45,7 +45,7 @@ class Connection
     read_file(filePath, tagCount, tagSet)
   end
 
-		String line = null;
+
   def read_file( filePath, tagCount, tagSet)
     tagSetA = {}
     tagSetB = {}
@@ -66,7 +66,7 @@ class Connection
 		end
 
 
-    f = File.open(filePath, "r:utf-8")
+    f = File.open(filePath.to_s, "r:utf-8")
 
     while f.eof? == false do
       line = f.readline
