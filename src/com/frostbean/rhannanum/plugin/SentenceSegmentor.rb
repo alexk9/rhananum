@@ -1,5 +1,6 @@
 require "com/frostbean/rhannanum/plugin/PlaintextProcessor"
-require "unicode_utils"
+require "unicode_utils/uppercase_char_q"
+require "unicode_utils/lowercase_char_q"
 
 class SentenceSegmentor
   include PlainTextProcessor

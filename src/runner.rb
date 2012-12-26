@@ -2,9 +2,12 @@
 $: << File.join(File.expand_path(File.dirname(__FILE__)))
 
 
-
+require "log4r"
+require "log4r/configurator"
 require "com/frostbean/rhannanum/comm/Sentence"
 require "com/frostbean/rhannanum/hannanum/WorkflowFactory"
+
+Log4r::Configurator.load_xml_file('log4r_config.xml')
 
 workflow = WorkflowFactory.get_predefined_workflow( WorkflowFactory::WORKFLOW_NOUN_EXTRACTOR)
 # Analysis using the work flow

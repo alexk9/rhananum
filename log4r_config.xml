@@ -1,0 +1,40 @@
+<!--Log Configuration -->
+<log4r_config>
+   <pre_config>
+     <custom_levels>DEBUG, INFO, WARN, ERROR, FATAL</custom_levels>
+     <global level="ALL"/>
+   </pre_config>
+
+   <!-- Outputters -->
+   <outputter name="console" type="StdoutOutputter" level="INFO" >
+      <formatter type="Log4r::PatternFormatter">
+        <pattern>%d [%5l] [%c] [%t] %M</pattern>
+      </formatter>
+    </outputter>
+    <outputter name="objects_outputter" type="FileOutputter">
+      <date_pattern>%Y-%m-%d</date_pattern>
+      <filename>./log/objects.log</filename>
+      <formatter type="Log4r::PatternFormatter">
+        <!--<pattern>%d [%5l] [%c] [%t] %M</pattern>-->
+        <pattern>%d [%5l] [%c] %M</pattern>
+      </formatter>
+    </outputter>
+    <outputter name="file_outputter" type="FileOutputter">
+      <date_pattern>%Y-%m-%d</date_pattern>
+      <filename>./log/default.log</filename>
+      <formatter type="Log4r::PatternFormatter">
+        <!--<pattern>%d [%5l] [%c] [%t] %M</pattern>-->
+        <pattern>%d [%5l] [%c] %M</pattern>
+      </formatter>
+    </outputter>
+
+    <!-- Loggers -->
+    <logger name="ObjectsLogger" level="ALL" additive="true" trace="true">
+      <outputter>console</outputter>
+      <outputter>objects_outputter</outputter>
+    </logger>
+    <logger name="DefaultLogger" level="ALL" additive="false" trace="true">
+      <outputter>console</outputter>
+      <outputter>file_outputter</outputter>
+    </logger>
+</log4r_config>

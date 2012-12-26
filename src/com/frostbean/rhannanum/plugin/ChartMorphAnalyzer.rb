@@ -9,6 +9,9 @@ require "com/frostbean/share/TagSet"
 require "com/frostbean/rhannanum/plugin/MorphemeChart"
 require "com/frostbean/rhannanum/plugin/PostProcessor"
 require "json"
+require "log4r"
+require "log4r/configurator"
+
 
 ##
 # Chart-based Morphological Analyzer.
@@ -19,6 +22,10 @@ class ChartMorphAnalyzer < MorphAnalyzer
   PLUG_IN_NAME = "MorphAnalyzer"
  
   def initialize
+
+
+    @obj_logger = Log4r::Logger["ObjectsLogger"]
+
     #Pre-analyzed dictionary. */
     @analyzedDic = nil
     #Default morpheme dictionary. */
@@ -110,6 +117,7 @@ class ChartMorphAnalyzer < MorphAnalyzer
   end
   
   def second_initialize( baseDir, configFile)
+    @obj_logger.info "begin second_initialize"
     f = File.open(configFile,"r:utf-8")
     content=""
     f.each_line do |line|

@@ -1,5 +1,8 @@
+require "log4r"
+
 class ConnecionNot
 	def initialize
+    @obj_logger = Log4r::Logger["ObjectsLogger"]
 		@title = ""
 		@version = ""
 		@copyright = ""
@@ -28,6 +31,16 @@ class ConnecionNot
 
 	def init(filePath, tagSet)
 		read_file(filePath, tagSet)
+    @obj_logger.debug "ConnectionNot Initialize."
+    @obj_logger.debug "@title:#{@title}"
+
+    for i in (0..@notMorphTable.size()-1) do
+        @obj_logger.debug "@notMorphTable[#{i}]:#{@notMorphTable[i]}"
+    end
+
+    for i in (0..@notTagTable.size()-1) do
+      @obj_logger.debug "@notTagTable[#{i}]:#{@notTagTable[i]}"
+    end
 	end
 
 	def read_file(filePath, tagSet)
