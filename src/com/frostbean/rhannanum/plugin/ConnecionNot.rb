@@ -93,9 +93,9 @@ class ConnecionNot
       rule = ruleList[i]
       st = rule.split(/ /)
       @notMorphTable[i][0] = st[0]
-      @notTagTable[i][0] = tagSet.get_tag_id(st[1])
+      @notTagTable[i][0] = tagSet.get_tag_id(st[1].rstrip)
       @notMorphTable[i][1] = st[2]
-      @notTagTable[i][1] = tagSet.get_tag_id(st[3])
+      @notTagTable[i][1] = tagSet.get_tag_id(st[3].rstrip)
     end
     ruleList.clear
 	end
