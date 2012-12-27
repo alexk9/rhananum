@@ -324,14 +324,14 @@ class Code
       #to_i 부분은디버깅하면서 수정해야함
 			if(c >= 0xAC00 && c <= 0xD7AF) then
 				combined = c - 0xAC00
-				if ((cho = toJamo((combined / (21 * 28)), JAMO_CHOSEONG)) != 0) then
+				if ((cho = to_jamo((combined / (21 * 28)), JAMO_CHOSEONG)) != 0) then
 					charList << cho
 				end
 				combined %= (21 * 28)
-				if ((jung = toJamo((combined / 28), JAMO_JUNGSEONG)) != 0) then
+				if ((jung = to_jamo((combined / 28), JAMO_JUNGSEONG)) != 0) then
 					charList << jung
 				end
-				if ((jong = toJamo((combined % 28), JAMO_JONGSEONG)) != 0) then
+				if ((jong = to_jamo((combined % 28), JAMO_JONGSEONG)) != 0) then
 					charList << jong
 				end
 			elsif (c >= 0x3131 && c <= 0x314E) then

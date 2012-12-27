@@ -41,7 +41,7 @@ class Trie
   def initialize(buf_size)
     @obj_logger = Log4r::Logger["ObjectsLogger"]
   	@search_idx = Array.new(256)
-		@search_key = Array.new(256)
+		@search_key = Array.new(256){String.new}
 		@search_end = 0
 
 		@trie_buf = Array.new(buf_size)
