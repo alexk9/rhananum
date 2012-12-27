@@ -1,8 +1,9 @@
-
+require "log4r"
 ##
 # This class is the data structure for the pre-analyzed dictionary.
 class AnalyzedDic
   def initialize( dictionaryFileName=nil)
+    @obj_logger = Log4r::Logger["ObjectsLogger"]
     @dictionary = {}
     if dictionaryFileName != nil then
       readDic(dictionaryFileName)
@@ -40,5 +41,7 @@ class AnalyzedDic
 
       @dictionary[key] = value.strip
     end
-	end
+    @obj_logger.debug "dictionary size:#{@dictionary.size}"
+    @obj_logger.debug "dictionary=#{@dictionary}"
+  end
 end
