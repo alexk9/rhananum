@@ -1,9 +1,13 @@
 require "com/frostbean/share/Code"
+require "log4r"
 
 class Trie
 
   class FREE
     attr_accessor :size, :next_idx
+    def to_s
+      return "size:#{@size},next_idx:#{@next_idx}"
+    end
   end
 
   class INFO
@@ -15,6 +19,10 @@ class Trie
 
     def initialize
       @free = FREE.new
+    end
+
+    def to_s
+      return "key:#{@key},child_size:#{@child_size},child_idx:#{@child_idx},info_list:#{@info_list},free:#{@free}"
     end
   end
 
@@ -31,6 +39,7 @@ class Trie
 	START_NODE = 1
 
   def initialize(buf_size)
+    @obj_logger = Log4r::Logger["ObjectsLogger"]
   	@search_idx = Array.new(256)
 		@search_key = Array.new(256)
 		@search_end = 0
@@ -234,7 +243,7 @@ class Trie
 
     while f.eof? == false do
 		  str= f.readline()
-      str.strip
+      str.rstrip
 
 			if str == "" then
 				next
@@ -246,16 +255,16 @@ class Trie
 			isize = 0
 
       for i in 1..(tok.size-1) do
-        data = tok[i]
+        data = tok[i].rstrip
         tok2 = data.split(/\./)
         curt = tok2[0]
         x = tagSet.get_tag_id(curt)
-        if x==-1 then
+        if x==nil then
           puts "ERROR"
           next
         end
 
-        if tok2.size >1 then
+        if tok2.size >2 then
           info_list[isize].phoneme = tagSet.get_irregular_id(tok2[1])
         else
           info_list[isize].phoneme = TagSet::PHONEME_TYPE_ALL
@@ -272,6 +281,13 @@ class Trie
         store(word3,info_list[i])
       end
     end
+    @obj_logger.debug "search_index_size:#{@search_idx.size}"
+    @obj_logger.debug "search_index:#{@search_idx}"
+    @obj_logger.debug "search_key:#{@search_key}"
+    @obj_logger.debug "search_end:#{@search_end}"
+    @obj_logger.debug "trie_buf_size:#{@trie_buf.size}"
+    @obj_logger.debug "trie_buf:#{@trie_buf[0..1000]}"
+
   end
 
   def search(word)
@@ -329,8 +345,8 @@ class Trie
 				# matching not finished
 				@search_key[@search_end] = key
 				@search_idx[@search_end] = nidx
-				@search_end++
-				widx++
+				@search_end+=1
+				widx+=1
 				child = @trie_buf[nidx].child_idx
 				cs = @trie_buf[nidx].child_size
 			end

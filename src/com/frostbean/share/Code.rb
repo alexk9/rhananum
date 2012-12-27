@@ -315,10 +315,14 @@ class Code
 		c , cho, jung,jong =0,0,0,0
 
 		for i in 0..(str.length()-1) do
+      #문자하나를떼어서c라고함
 			c = str[i]
-
+      #그문자하나를byte배열로바꿈
+      c = c.unpack("U*")
+      #배열중첫원소를c로함
+      c = c[0]
       #to_i 부분은디버깅하면서 수정해야함
-			if(c.to_i >= 0xAC00 && c.to_i <= 0xD7AF) then
+			if(c >= 0xAC00 && c <= 0xD7AF) then
 				combined = c - 0xAC00
 				if ((cho = toJamo((combined / (21 * 28)), JAMO_CHOSEONG)) != 0) then
 					charList << cho
@@ -330,7 +334,7 @@ class Code
 				if ((jong = toJamo((combined % 28), JAMO_JONGSEONG)) != 0) then
 					charList << jong
 				end
-			elsif (c.to_i >= 0x3131 && c.to_i <= 0x314E) then
+			elsif (c >= 0x3131 && c <= 0x314E) then
 				c -= 0x3131
 				if (JONGSEONG_LIST_REV[c] != -1) then
 					# a single consonant is regarded as a final consonant
@@ -342,10 +346,10 @@ class Code
 					# exception (if it occur, the conversion array has some problem)
 					charList << (c + 0x3131)
 				end
-			elsif (c.to_i >= 0x314F && c.to_i <= 0x3163)  then
+			elsif (c >= 0x314F && c <= 0x3163)  then
 				# a single vowel changes jungseong
 				charList  << (c - 0x314F + 0x1161)
-			elsif (c.to_i == '^' && str.length() > i + 1 && str[i+1] >= 0x3131 && str[i+1] <= 0x314E) then
+			elsif (c == '^' && str.length() > i + 1 && str[i+1] >= 0x3131 && str[i+1] <= 0x314E) then
 				# ^consonant changes to choseong
 				c = (str.charAt(i+1) - 0x3131)
 				if (CHOSEONG_LIST_REV[c] != -1)then
