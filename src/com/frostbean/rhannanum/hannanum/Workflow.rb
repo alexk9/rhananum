@@ -258,7 +258,8 @@ class Workflow
         end
       rescue Exception => e
         #inQueue1의 아이템들이 모두 소진되었음 
-        puts e.to_s+"@Workflow.rb"
+        puts e.inspect
+        puts e.backtrace
       end
     end
 
@@ -279,7 +280,8 @@ class Workflow
         end
       end
     rescue Exception => e
-      puts e
+      puts e.inspect
+      puts e.backtrace
     end
 
     if @morphemePluginCnt == 0 then

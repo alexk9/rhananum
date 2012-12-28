@@ -75,11 +75,11 @@ class ChartMorphAnalyzer < MorphAnalyzer
       analyzed_list = analysis.split("^")
       for analyzed in analyzed_list do
         #아래 정규식은 ... 디버깅이 필요함 
-        tokens = analyzed.split(/\\+|/)
+        tokens = analyzed.split(/[\\\+\|\/]/)
         
         morphemes = []
         tags = []
-        for i in 0..(tokens-1) do
+        for i in 0..(tokens.size()-1) do
           morphemes << tokens[i*2]
           tags << tokens[i*2+1]
         end

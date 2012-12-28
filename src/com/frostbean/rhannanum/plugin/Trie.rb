@@ -243,7 +243,7 @@ class Trie
 
     while f.eof? == false do
 		  str= f.readline()
-      str.rstrip
+      str = str.rstrip
 
 			if str == "" then
 				next
