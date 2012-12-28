@@ -396,15 +396,17 @@ class Trie
 				new_index = node_alloc(cs + 1)
 				child_index = parent.child_idx
 				for i in 0..(cs-1) do
-          #아래버그있어서주석처리2012/12/24
-					#if @trie_buf[child_index + i].key < c then
-					#	tmp = @trie_buf[new_index + i]
-					#	@trie_buf[new_index + i] = @trie_buf[child_index + i]
-					#	@trie_buf[child_index + i] = tmp
-					#else
-					#	break
-					#end
-				end
+					if @trie_buf[child_index + i].key < c then
+						tmp = @trie_buf[new_index + i]
+						@trie_buf[new_index + i] = @trie_buf[child_index + i]
+						@trie_buf[child_index + i] = tmp
+          else
+            i-=1
+						break
+					end
+        end
+        i+=1
+
 				@trie_buf[new_index + i].key = c
 				@trie_buf[new_index + i].child_idx = 0
 				@trie_buf[new_index + i].child_size = 0
