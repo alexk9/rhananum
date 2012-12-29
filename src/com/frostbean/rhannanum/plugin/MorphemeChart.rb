@@ -21,7 +21,7 @@ class MorphemeChart
       #the number of morphemes connected */
       @connectionCount = 0
       #the list of the morphemes connected */
-      @connection = Array.new(MAX_MORPHEME_CONNECTION)
+      @connection = Array.new(MAX_MORPHEME_CONNECTION){0}
       # plain string */
       @str = ""
     end
