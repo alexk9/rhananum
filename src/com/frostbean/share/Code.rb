@@ -1,4 +1,5 @@
 #coding:utf-8
+require "log4r"
 
  #* This class is for code conversion. HanNanum internally uses triple encoding, which represents
  #* an Korean eumjeol with three characters - CHOSEONG(beginning consonant), JUNGSEONG(vowel), JONGSEONG(final consonant).
@@ -37,7 +38,7 @@ class Code
 	JONGSEONG_LIST_REV =
 		[1,2,3,4,5,6,7,-1,8,9,10,11,12,13,14,15,16,17,-1,18,19,20,21,22,-1,23,24,25,26,27]
 
-	#/**
+  #/**
 	# * It changes the encoding of text file between UTF-8 and the triple encoding.
 	def convert_file(srcFileName, desFileName, srcEncoding, desEncoding)
     f_src = File.open(srcFileName,"r:utf-8")
@@ -313,56 +314,56 @@ class Code
 		result = nil
     charList = []
 		c , cho, jung,jong =0,0,0,0
+    begin
+      for i in 0..(str.length()-1) do
+        c = str[i].ord
+        if(c >= 0xAC00 && c <= 0xD7AF) then
+          combined = c - 0xAC00
+          if ((cho = to_jamo((combined / (21 * 28)), JAMO_CHOSEONG)) != 0) then
+            charList << cho
+          end
+          combined %= (21 * 28)
+          if ((jung = to_jamo((combined / 28), JAMO_JUNGSEONG)) != 0) then
+            charList << jung
+          end
+          if ((jong = to_jamo((combined % 28), JAMO_JONGSEONG)) != 0) then
+            charList << jong
+          end
+        elsif (c >= 0x3131 && c <= 0x314E) then
+          c -= 0x3131
+          if (JONGSEONG_LIST_REV[c] != -1) then
+            # a single consonant is regarded as a final consonant
+            charList << (JONGSEONG_LIST_REV[c] + 0x11A7)
+          elsif (CHOSEONG_LIST_REV[c] != -1) then
+            # a single consonant which can not be a final consonant becomes a beginning consonant
+            charList << (CHOSEONG_LIST_REV[c] + 0x1100)
+          else
+            # exception (if it occur, the conversion array has some problem)
+            charList << (c + 0x3131)
+          end
+        elsif (c >= 0x314F && c <= 0x3163)  then
+          # a single vowel changes jungseong
+          charList  << (c - 0x314F + 0x1161)
+        elsif (c == '^' && str.length() > i + 1 && str[i+1] >= 0x3131 && str[i+1] <= 0x314E) then
+          # ^consonant changes to choseong
+          c = (str.charAt(i+1) - 0x3131)
+          if (CHOSEONG_LIST_REV[c] != -1)then
+            charList << (CHOSEONG_LIST_REV[c] + 0x1100)
+            i+=1
+          else
+            charList <<  '^'
+          end
+        else
+          # other characters
+          charList << c
+        end
+      end
+    rescue Exception =>e
+      e.inspect
+      e.message
+      e.backtrace
+    end
 
-		for i in 0..(str.length()-1) do
-      #문자하나를떼어서c라고함
-			c = str[i]
-      #그문자하나를byte배열로바꿈
-      c = c.unpack("U*")
-      #배열중첫원소를c로함
-      c = c[0]
-      #to_i 부분은디버깅하면서 수정해야함
-			if(c >= 0xAC00 && c <= 0xD7AF) then
-				combined = c - 0xAC00
-				if ((cho = to_jamo((combined / (21 * 28)), JAMO_CHOSEONG)) != 0) then
-					charList << cho
-				end
-				combined %= (21 * 28)
-				if ((jung = to_jamo((combined / 28), JAMO_JUNGSEONG)) != 0) then
-					charList << jung
-				end
-				if ((jong = to_jamo((combined % 28), JAMO_JONGSEONG)) != 0) then
-					charList << jong
-				end
-			elsif (c >= 0x3131 && c <= 0x314E) then
-				c -= 0x3131
-				if (JONGSEONG_LIST_REV[c] != -1) then
-					# a single consonant is regarded as a final consonant
-					charList << (JONGSEONG_LIST_REV[c] + 0x11A7)
-				elsif (CHOSEONG_LIST_REV[c] != -1) then
-					# a single consonant which can not be a final consonant becomes a beginning consonant
-					charList << (CHOSEONG_LIST_REV[c] + 0x1100)
-				else
-					# exception (if it occur, the conversion array has some problem)
-					charList << (c + 0x3131)
-				end
-			elsif (c >= 0x314F && c <= 0x3163)  then
-				# a single vowel changes jungseong
-				charList  << (c - 0x314F + 0x1161)
-			elsif (c == '^' && str.length() > i + 1 && str[i+1] >= 0x3131 && str[i+1] <= 0x314E) then
-				# ^consonant changes to choseong
-				c = (str.charAt(i+1) - 0x3131)
-				if (CHOSEONG_LIST_REV[c] != -1)then
-					charList << (CHOSEONG_LIST_REV[c] + 0x1100)
-					i+=1
-				else
-					charList <<  '^'
-				end
-			else
-				# other characters
-				charList << c
-			end
-		end
 
 		result = Array.new(charList.size())
 

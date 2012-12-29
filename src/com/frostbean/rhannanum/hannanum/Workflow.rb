@@ -256,10 +256,9 @@ class Workflow
             outQueue1 << ps
           end
         end
-      rescue Exception => e
-        #inQueue1의 아이템들이 모두 소진되었음 
-        puts e.inspect
-        puts e.backtrace
+      rescue ThreadError => e
+        #inQueue1의 아이템들이 모두 소진되었음
+        #에러는 아님.
       end
     end
 

@@ -6,7 +6,8 @@ require "com/frostbean/rhannanum/plugin/Exp"
 class MorphemeChart 
 	#A morpheme node in the lattice style chart.
 	class Morpheme
-    attr_accessor :tag, :phoneme, :nextPosition, :state, :connectionCount, :connection, :str
+    attr_accessor :tag, :phoneme, :nextPosition, :nextTagType, :state, :connectionCount, :connection, :str
+
     def initialize
       #morpheme tag */
       @tag = 0
@@ -86,7 +87,7 @@ class MorphemeChart
       @segmentPath = Array.new(SegmentPosition::MAX_SEGMENT)
 
       # chart expansion */
-      exp = nil;
+      @exp = nil;
 
       #system morpheme dictionary */
       @systemDic = nil;
@@ -164,35 +165,35 @@ class MorphemeChart
 
     revStrArray = rev
 
-    match = simti.search(revStrArray);
-    to = simti.fetch(rev[0, match])
+    match = @simti.search(revStrArray);
+    to = @simti.fetch(rev[0, match])
 
     for i in 0..(str.length()-1) do
       if (len <= match) then
         break
       end
-      next_n = sp.add_position(str[i]);
+      next_n = @sp.add_position(str[i]);
       if (prev != 0) then
-        sp.set_positionLink(prev, next_n)
+        @sp.set_positionLink(prev, next_n)
       end
 
-      simti.insert(rev[0, len], next_n);
+      @simti.insert(rev[0, len], next_n);
       prev = next_n;
       len-=1
     end
 
     if (prev != 0) then
-      sp.set_position_link(prev, to);
+      @sp.set_position_link(prev, to);
     end
 
-    return simti.fetch(revStrArray);
+    return @simti.fetch(revStrArray);
   end
 
  #It performs morphological analysis on the morpheme chart constructed.
   def analyze()
     res = 0
 
-    res = analyze(0, TagSet::TAG_TYPE_ALL)
+    res = analyze_with_index_type(0, TagSet::TAG_TYPE_ALL)
 
     if (res > 0) then
       return res;
@@ -217,20 +218,20 @@ class MorphemeChart
 		nidx = 1;
 		fromPos = nil;
 		toPos = nil;
-		morph = Array.new(chartIndex)
+    morph = @chart[chartIndex]
 		from = morph.nextPosition;
-		fromPos = sp.getPosition(from);
+		fromPos = @sp.get_position(from);
 
-    case sp.get_position(from).state
+    case @sp.get_position(from).state
 		  #dictionary search */
-      when SegmentPosition.SP_STATE_N then
+      when SegmentPosition::SP_STATE_N then
         i = 0;
         bufString = "";
 
         # searches all combinations of words segmented through the dictionaries
         to = from
         while to != SegementPosition::POSITION_START_KEY do
-          toPos = sp.get_position(to);
+          toPos = @sp.get_position(to);
           c = toPos.key;
 
           if (sidx != 0) then
@@ -250,14 +251,14 @@ class MorphemeChart
           bufString += c;
           segmentPath[i] = to;
           i+=1
-          to = sp.next_position(to)
+          to = @sp.next_position(to)
         end
 
         nidx = 0
 
         while i>0 do
           to = segmentPath[i-1];
-          toPos = sp.get_position(to);
+          toPos = @sp.get_position(to);
 
           # system dictionary
           if (toPos.sIndex != 0) then
@@ -266,7 +267,7 @@ class MorphemeChart
               for j in 0..(infoList.size()-1) do
 
                 info = infoList[j]
-                nc_idx = add_morpheme(info.tag, info.phoneme, sp.next_position(to), 0);
+                nc_idx = add_morpheme(info.tag, info.phoneme, @sp.next_position(to), 0);
                 @chart[nc_idx].str = bufString[0, i]
                 fromPos.morpheme[fromPos.morphCount] = nc_idx;
                 fromPos.morphCount+=1
@@ -281,7 +282,7 @@ class MorphemeChart
               for i in 0..(infoList.size-1) do
 
                 info = infoList[j]
-                nc_idx = add_morpheme(info.tag, info.phoneme, sp.next_position(to), 0)
+                nc_idx = add_morpheme(info.tag, info.phoneme, @sp.next_position(to), 0)
                 @chart[nc_idx].str = bufString.substring(0, i);
                 fromPos.morpheme[fromPos.morphCount] = nc_idx;
                 fromPos.morphCount+=1
@@ -292,7 +293,7 @@ class MorphemeChart
           #number dictionary
           if (nidx == 0 && toPos.nIndex != 0) then
             if (numDic.isNum(toPos.nIndex)) then
-              nc_idx = add_morpheme(tagSet.numTag, TagSet::PHONEME_TYPE_ALL, sp.next_position(to), 0)
+              nc_idx = add_morpheme(tagSet.numTag, TagSet::PHONEME_TYPE_ALL, @sp.next_position(to), 0)
               @chart[nc_idx].str = bufString[0, i]
               fromPos.morpheme[fromPos.morphCount] = nc_idx;
               fromPos.morphCount+=1
@@ -307,8 +308,8 @@ class MorphemeChart
         fromPos.state = SegmentPosition::SP_STATE_D;
         # chart expansion regarding various rules */
         #case SegmentPosition.SP_STATE_D:
-        exp.prule(from, morph.str, bufString, sp);
-        sp.get_position(from).state = SegmentPosition::SP_STATE_R;
+        @exp.prule(from, morph.str, bufString, @sp);
+        @sp.get_position(from).state = SegmentPosition::SP_STATE_R;
 
         # recursive processing */
         #case SegmentPosition.SP_STATE_R:
@@ -317,22 +318,22 @@ class MorphemeChart
           mp = fromPos.morpheme[i];
 
           #It prevents a recursive call for '습니다', which needs to be improved.
-          if (tagSet.check_tag_type(tagType, chart[mp].tag) == false) then
+          if (tagSet.check_tag_type(tagType, @chart[mp].tag) == false) then
             next
           end
 
           #It prevents some redundant processing
-          if (chart[mp].state == MORPHEME_STATE_INCOMPLETE) then
-            y = analyze_with_index_type(mp, chart[mp].nextTagType);
+          if (@chart[mp].state == MORPHEME_STATE_INCOMPLETE) then
+            y = analyze_with_index_type(mp, @chart[mp].nextTagType);
             x += y;
 
             if (y != 0) then
-              chart[mp].state = MORPHEME_STATE_SUCCESS;
+              @chart[mp].state = MORPHEME_STATE_SUCCESS;
             else
-              chart[mp].state = MORPHEME_STATE_FAIL;
+              @chart[mp].state = MORPHEME_STATE_FAIL;
             end
           else
-            x += chart[mp].connectionCount;
+            x += @chart[mp].connectionCount;
           end
         end
 
@@ -353,15 +354,15 @@ class MorphemeChart
         for i in 0..(fromPos.morphCount-1) do
           mp = fromPos.morpheme[i];
 
-          if (chart[mp].state == MORPHEME_STATE_SUCCESS && connection.checkConnection(tagSet,morph.tag,chart[mp].tag,morph.str.length(),chart[mp].str.length(),morph.nextTagType)) then
+          if (@chart[mp].state == MORPHEME_STATE_SUCCESS && connection.checkConnection(tagSet,morph.tag,@chart[mp].tag,morph.str.length(),@chart[mp].str.length(),morph.nextTagType)) then
             morph.connection[morph.connectionCount] = mp;
             morph.connectionCount+=1
           end
         end
 		  #chart expansion regarding various rules */
       when SegmentPosition::SP_STATE_D then
-        exp.prule(from, morph.str, bufString, sp);
-        sp.get_position(from).state = SegmentPosition::SP_STATE_R;
+        @exp.prule(from, morph.str, bufString, @sp);
+        @sp.get_position(from).state = SegmentPosition::SP_STATE_R;
 
         # recursive processing */
         #case SegmentPosition.SP_STATE_R:
@@ -370,22 +371,22 @@ class MorphemeChart
           mp = fromPos.morpheme[i];
 
           #It prevents a recursive call for '습니다', which needs to be improved.
-          if (tagSet.check_tag_type(tagType, chart[mp].tag) == false) then
+          if (tagSet.check_tag_type(tagType, @chart[mp].tag) == false) then
             next
           end
 
           #It prevents some redundant processing
-          if (chart[mp].state == MORPHEME_STATE_INCOMPLETE) then
-            y = analyze_with_index_type(mp, chart[mp].nextTagType);
+          if (@chart[mp].state == MORPHEME_STATE_INCOMPLETE) then
+            y = analyze_with_index_type(mp, @chart[mp].nextTagType);
             x += y;
 
             if (y != 0) then
-              chart[mp].state = MORPHEME_STATE_SUCCESS;
+              @chart[mp].state = MORPHEME_STATE_SUCCESS;
             else
-              chart[mp].state = MORPHEME_STATE_FAIL;
+              @chart[mp].state = MORPHEME_STATE_FAIL;
             end
           else
-            x += chart[mp].connectionCount;
+            x += @chart[mp].connectionCount;
           end
         end
 
@@ -406,35 +407,35 @@ class MorphemeChart
         for i in 0..(fromPos.morphCount-1) do
           mp = fromPos.morpheme[i];
 
-          if (chart[mp].state == MORPHEME_STATE_SUCCESS && connection.checkConnection(tagSet,morph.tag,chart[mp].tag,morph.str.length(),chart[mp].str.length(),morph.nextTagType)) then
+          if (@chart[mp].state == MORPHEME_STATE_SUCCESS && connection.checkConnection(tagSet,morph.tag,@chart[mp].tag,morph.str.length(),@chart[mp].str.length(),morph.nextTagType)) then
             morph.connection[morph.connectionCount] = mp;
             morph.connectionCount+=1
           end
         end
 
 		#recursive processing */
-        when SegementPosition::SP_STATE_R then
+        when SegmentPosition::SP_STATE_R then
         x = 0;
         for i in 0..(fromPos.morphCount-1) do
           mp = fromPos.morpheme[i];
 
           #It prevents a recursive call for '습니다', which needs to be improved.
-          if (tagSet.check_tag_type(tagType, chart[mp].tag) == false) then
+          if (tagSet.check_tag_type(tagType, @chart[mp].tag) == false) then
             next
           end
 
           #It prevents some redundant processing
-          if (chart[mp].state == MORPHEME_STATE_INCOMPLETE) then
-            y = analyze_with_index_type(mp, chart[mp].nextTagType);
+          if (@chart[mp].state == MORPHEME_STATE_INCOMPLETE) then
+            y = analyze_with_index_type(mp, @chart[mp].nextTagType);
             x += y;
 
             if (y != 0) then
-              chart[mp].state = MORPHEME_STATE_SUCCESS;
+              @chart[mp].state = MORPHEME_STATE_SUCCESS;
             else
-              chart[mp].state = MORPHEME_STATE_FAIL;
+              @chart[mp].state = MORPHEME_STATE_FAIL;
             end
           else
-            x += chart[mp].connectionCount;
+            x += @chart[mp].connectionCount;
           end
         end
 
@@ -455,7 +456,7 @@ class MorphemeChart
         for i in 0..(fromPos.morphCount-1) do
           mp = fromPos.morpheme[i];
 
-          if (chart[mp].state == MORPHEME_STATE_SUCCESS && connection.checkConnection(tagSet,morph.tag,chart[mp].tag,morph.str.length(),chart[mp].str.length(),morph.nextTagType)) then
+          if (@chart[mp].state == MORPHEME_STATE_SUCCESS && connection.checkConnection(tagSet,morph.tag,@chart[mp].tag,morph.str.length(),@chart[mp].str.length(),morph.nextTagType)) then
             morph.connection[morph.connectionCount] = mp;
             morph.connectionCount+=1
           end
@@ -466,7 +467,7 @@ class MorphemeChart
           for i in 0..(fromPos.morphCount-1) do
               mp = fromPos.morpheme[i];
 
-              if (chart[mp].state == MORPHEME_STATE_SUCCESS && connection.checkConnection(tagSet,morph.tag,chart[mp].tag,morph.str.length(),chart[mp].str.length(),morph.nextTagType)) then
+              if (@chart[mp].state == MORPHEME_STATE_SUCCESS && connection.checkConnection(tagSet,morph.tag,@chart[mp].tag,morph.str.length(),@chart[mp].str.length(),morph.nextTagType)) then
                 morph.connection[morph.connectionCount] = mp;
                 morph.connectionCount+=1
               end
@@ -484,23 +485,23 @@ class MorphemeChart
 		
 		bufString = ""
 		
-		pos_1 = sp.get_position(1);
+		pos_1 = @sp.get_position(1);
 
     i =1
     while i!=0 do
-      pos = sp.get_position(i);
+      pos = @sp.get_position(i);
       bufString += pos.key;
 
-			nc_idx = add_morpheme(tagSet.unkTag, TagSet::PHONEME_TYPE_ALL, sp.next_position(i), TagSet::TAG_TYPE_ALL)
-			chart[nc_idx].str = bufString;
+			nc_idx = add_morpheme(tagSet.unkTag, TagSet::PHONEME_TYPE_ALL, @sp.next_position(i), TagSet::TAG_TYPE_ALL)
+			@chart[nc_idx].str = bufString;
 
 			pos_1.morpheme[pos_1.morphCount] = nc_idx;
       pos_1.morphCount+=1
 			pos_1.state = SegmentPosition.SP_STATE_R;
-      i = sp.next_position(i)
+      i = @sp.next_position(i)
     end
 
-		chart[0].connectionCount = 0;
+		@chart[0].connectionCount = 0;
 		
 		return analyze_with_index_type(0, 0);
 	end
@@ -508,12 +509,8 @@ class MorphemeChart
 	#Checks the specified morpheme is exist in the morpheme chart.
 	def check_chart(morpheme, morphemeLen, tag, phoneme, nextPosition, nextTagType, str)
 		for i in 0..(morphemeLen-1) do
-			morph = chart[morpheme[i]];
-			if (morph.tag == tag &&
-					morph.phoneme == phoneme &&
-					morph.nextPosition == nextPosition &&
-					morph.nextTagType == nextTagType &&
-					morph.str == str) then
+			morph = @chart[morpheme[i]];
+			if (morph.tag == tag && morph.phoneme == phoneme && morph.nextPosition == nextPosition && morph.nextTagType == nextTagType && morph.str == str) then
 				return true;
 			end
     end
@@ -528,22 +525,22 @@ class MorphemeChart
 
 	#Initializes the morpheme chart with the specified word.
 	def init(word)
-		simti.init();
+		@simti.init();
 		word = pre_replace(word);
-		sp.init(Code.to_triple_string(word), simti)
+		@sp.init(Code.to_triple_string(word), @simti)
 		
-		chartEnd = 0;
-		p = sp.get_position(0);
-		p.morpheme[p.morphCount] = chartEnd;
+		@chartEnd = 0;
+		p = @sp.get_position(0);
+		p.morpheme[p.morphCount] = @chartEnd;
     p.morphCount+=1
-		chart[chartEnd].tag = tagSet.iwgTag;
-		chart[chartEnd].phoneme = 0;
-		chart[chartEnd].nextPosition = 1;
-		chart[chartEnd].nextTagType = 0;
-		chart[chartEnd].state = MORPHEME_STATE_SUCCESS;
-		chart[chartEnd].connectionCount = 0;
-		chart[chartEnd].str = "";
-		chartEnd+=1;
+		@chart[@chartEnd].tag = @tagSet.iwgTag;
+		@chart[@chartEnd].phoneme = 0;
+		@chart[@chartEnd].nextPosition = 1;
+		@chart[@chartEnd].nextTagType = 0;
+		@chart[@chartEnd].state = MORPHEME_STATE_SUCCESS;
+		@chart[@chartEnd].connectionCount = 0;
+		@chart[@chartEnd].str = "";
+		@chartEnd+=1;
 	end
 	
 	#It expands the morpheme chart to deal with the phoneme change phenomenon.
@@ -560,7 +557,7 @@ class MorphemeChart
 			size = node.info_list.size();
 		end
 		
-		pos = sp.get_position(from)
+		pos = @sp.get_position(from)
 		
 		for i in 0..(size-1) do
 			info = node.info_list[i]
@@ -576,7 +573,7 @@ class MorphemeChart
 				
 				if (checkChart(pos.morpheme, pos.morphCount, info.tag, info.phoneme, next_n, btag, front) == false)  then
 					nc_idx = add_morpheme(info.tag, info.phoneme, next_n, btag)
-					chart[nc_idx].str = front;
+					@chart[nc_idx].str = front;
 					pos.morpheme[pos.morphCount] = nc_idx;
           pos.morphCount+=1
 				else
@@ -607,11 +604,11 @@ class MorphemeChart
 			while (idx != -1) do
 				if ((idx = morphStr.index(ENG_REPLACE)) != -1) then
 					engCnt+=1
-					morphStr = morphStr.replace_first(ENG_REPLACE, engReplacementList.get(engReplaceIndex));
+					morphStr = morphStr.replace_first(ENG_REPLACE, @engReplacementList.get(engReplaceIndex));
           engReplaceIndex+=1
 				elsif ((idx = morphStr.index(CHI_REPLACE)) != -1) then
 					chiCnt+=1
-					morphStr = morphStr.replace_first(CHI_REPLACE, chiReplacementList.get(chiReplaceIndex));
+					morphStr = morphStr.replace_first(CHI_REPLACE, @chiReplacementList.get(chiReplaceIndex));
           chiReplaceIndex+=1
 				end
 			end
@@ -667,27 +664,27 @@ class MorphemeChart
 	
 	#Replaces the English alphabets and Chinese characters in the specified string with the reserved words.
   def pre_replace(str)
-		result = "";
+		result = 0;
 		engFlag = false;
 		chiFlag = false;
 		buf = "";
 		
-		engReplacementList.clear();
-		chiReplacementList.clear();
+		@engReplacementList.clear();
+		@chiReplacementList.clear();
 		engReplaceIndex = 0;
 		chiReplaceIndex = 0;
 
 		for i in 0..(str.length()-1) do
-			c = str[i]
+      c = str[i].ord
 
-			if (((c >= 'a' && c <= 'z') || c >= 'A' && c <= 'Z')) then
+			if (((c >= 'a'.ord && c <= 'z'.ord) || c >= 'A'.ord && c <= 'Z'.ord)) then
 				# English Alphabets */
 				if (engFlag) then
 					buf += c;
 				else
 					if (engFlag) then
 						engFlag = false;
-						engReplacementList.add(buf);
+						@engReplacementList.add(buf);
 						buf = "";
 					end
 					result += ENG_REPLACE;
@@ -703,7 +700,7 @@ class MorphemeChart
 				else
 					if (chiFlag) then
 						chiFlag = false;
-						chiReplacementList.add(buf);
+						@chiReplacementList.add(buf);
 						buf = "";
 					end
 					result += CHI_REPLACE;
@@ -714,21 +711,21 @@ class MorphemeChart
 				result += c;
 				if (engFlag) then
 					engFlag = false;
-					engReplacementList.add(buf);
+					@engReplacementList.add(buf);
 					buf = "";
 				end
 				if (chiFlag) then
 					chiFlag = false;
-					chiReplacementList.add(buf);
+					@chiReplacementList.add(buf);
 					buf = "";
 				end
 			end
 		end
 		if (engFlag) then
-			engReplacementList.add(buf);
+			@engReplacementList.add(buf);
 		end
 		if (chiFlag) then
-			chiReplacementList.add(buf);
+			@chiReplacementList.add(buf);
 		end
 		return result;
 	end

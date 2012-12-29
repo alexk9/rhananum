@@ -1,4 +1,5 @@
 class TagSet
+  attr_accessor :title, :version, :copyright, :author, :date, :editor, :indexTags, :unkTags, :iwgTag, :unkTag, :numTag, :irr_type_b, :irr_type_s, :irr_type_d, :irr_type_h, :irr_type_reu, :irr_type_reo
   #KAIST tag set */
   TAG_SET_KAIST = 0
 

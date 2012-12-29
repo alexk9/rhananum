@@ -6,7 +6,7 @@ class SegmentPosition
     attr_accessor :key, :state, :nextPosition, :sIndex, :uIndex, :nIndex, :morphCount, :morpheme
 		def initialize
       #the consonant or vowel of this position */
-      @key = 0;
+      @key = ''
       # the processing state */
       @state;
       # the index of next segment position */
@@ -46,7 +46,7 @@ class SegmentPosition
 	SP_STATE_F = 4;
 
 	# the key of the start node for data structure */
-	POSITION_START_KEY = 0;
+	POSITION_START_KEY = 0.chr;
 
 	def initialize
     @positionEnd = 0;
@@ -76,15 +76,24 @@ class SegmentPosition
 
 		positionEnd = 0;
 		prevIndex = add_position(POSITION_START_KEY);
-		position[prevIndex].state = SP_STATE_M;
+		@position[prevIndex].state = SP_STATE_M;
 
 		rev = "";
 
-		for i in (str.length() - 1)..0 do
-			rev += str[i]
-		end
+    begin
+      for i in (str.length() - 1)..0 do
+        rev += str[i]
+      end
+    rescue Exception =>e
+      e.backtrace
+      e.inspect
+      e.message
+    end
+
+
 
 		for i in 0..(str.length()-1) do
+      #버그 가능성 있음. 문자열과 숫자 차이에 의한...
 			c = str[i]
 			nextIndex = add_position(c);
 			set_position_link(prevIndex, nextIndex);
@@ -98,7 +107,7 @@ class SegmentPosition
 	end
 
 	def next_position( index)
-		return position[index].nextPosition;
+		return @position[index].nextPosition;
 	end
 
 
@@ -113,7 +122,7 @@ class SegmentPosition
 
 
 	def set_position_link( prevIndex,  nextIndex)
-		position[prevIndex].nextPosition = nextIndex;
+		@position[prevIndex].nextPosition = nextIndex;
 		return prevIndex;
 	end
 end
