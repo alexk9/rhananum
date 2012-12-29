@@ -1,3 +1,5 @@
+#encoding:utf-8
+
 require "com/frostbean/share/Code"
 require "log4r"
 
@@ -260,7 +262,7 @@ class Trie
         curt = tok2[0]
         x = tagSet.get_tag_id(curt)
         if x==nil then
-          puts "ERROR"
+          @obj_logger.warn "tagSet에서 tag id를 찾을 수 없습니다."
           next
         end
 
