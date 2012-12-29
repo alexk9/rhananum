@@ -96,7 +96,7 @@ class Simti
 		if @search_end != word.length or word.length == 0 then
 			return 0
     else
-      return @nf[this.search_idx[this.search_end-1]].node.I
+      return @nf[@search_idx[@search_end-1]].node.I
     end
 	end
 
@@ -132,7 +132,7 @@ class Simti
 			return 0
     end
 
-    temp= @nf[this.search_idx[@search_end-1]].node
+    temp= @nf[@search_idx[@search_end-1]].node
 
 		if temp.I == 0 then
 			return 0
@@ -235,7 +235,7 @@ class Simti
 		if idx < i then
 			@head.s_free.next = idx
 			if i == idx + size then
-        @nf[idx].free.size = size + this.nf[i].free.size
+        @nf[idx].free.size = size + @nf[i].free.size
 				@nf[idx].free.next = @nf[i].free.next
 			else
 				@nf[idx].free.size = size
@@ -291,10 +291,10 @@ class Simti
 	end
 
 	def insert( word,  arg_I)
-		child_index, new_index =
-		i, j, k =
-		cs =
-		parent =
+		child_index, new_index = 0,0
+		i, j, k =0,0,0
+		cs =0
+		parent =0
 		tmp_node = ST_NODE.new
 
 		tmp_node.child = 0
@@ -325,8 +325,8 @@ class Simti
 
 				parent.CS = 1
 				parent.child = new_index
-				@search_idx[this.search_end] = new_index
-				@search_word[this.search_end] = word[k]
+				@search_idx[@search_end] = new_index
+				@search_word[@search_end] = word[k]
 				@search_end+=1
 				k+=1
 				parent = @nf[new_index].node
@@ -384,7 +384,7 @@ class Simti
 			return 0
 		else
 			for i in 0..(@search_end-1) do
-				i_buffer[i] = @nf[this.search_idx[i]].node.I
+				i_buffer[i] = @nf[@search_idx[i]].node.I
 			end
 		end
 		return @search_end
@@ -398,7 +398,7 @@ class Simti
 			return 0
     end
 
-		for i in 0..(@this.search_end-1) do
+		for i in 0..(@search_end-1) do
 			word[i] = @search_word[i]
 
 		  #i equals with the search_end
@@ -443,7 +443,7 @@ class Simti
 				if i == 1 then
 					parent = @head.s_node
 				else
-					parent = @nf[this.search_idx[i - 2]].node
+					parent = @nf[@search_idx[i - 2]].node
 				end
 				cs = 0
 			end

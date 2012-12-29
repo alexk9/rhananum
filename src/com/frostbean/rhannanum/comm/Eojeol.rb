@@ -1,4 +1,6 @@
 class Eojeol
+  attr_accessor :length
+
 	def initialize(morphemes=nil,tags=nil)
     #Morphemes in the eojeol.
 	  @morphemes =morphemes
@@ -8,20 +10,21 @@ class Eojeol
     #The number of morphemes in this eojeol.
     @length = 0
 
-    if ( @morphemes != nil and @tags != nil and @morphemes.size > @tags.size ) then
+    if ( @morphemes != nil and @tags != nil and @morphemes.size < @tags.size ) then
       @length = @morphemes.size
     elsif @tags != nil
       @length = @tags.size
     end
+    puts @length
   end
 
 	def get_morphemes()
-		return morphemes
+		return @morphemes
 	end
 	
 	#주어진 인덱스에 대한 형태소를 리턴한다.
 	def get_morpheme(index)
-		return morphemes[index]
+		return @morphemes[index]
 	end
 	
 	def set_morphemes( morphemes)
@@ -30,7 +33,8 @@ class Eojeol
 			@length = @tags.length
 		else
 			@length = @morphemes.length
-		end
+    end
+    puts @length
 	end
 	
 	def set_morpheme( index,  morpheme)
@@ -43,7 +47,7 @@ class Eojeol
 	end
 	
 	def get_tags()
-		return tags;
+		return @tags;
 	end
 	
 	def get_tag( index)
@@ -57,7 +61,8 @@ class Eojeol
 			@length = @morphemes.length;
 		else
 			@length = @tags.length;
-		end
+    end
+    puts @length
 	end
 
   def set_tag( index,  tag)

@@ -45,8 +45,8 @@ class SegmentPosition
 	# the processing state - failure */
 	SP_STATE_F = 4;
 
-	# the key of the start node for data structure */
-	POSITION_START_KEY = 0.chr;
+	# the key and index of the start node for data structure */
+	POSITION_START_KEY = 0;
 
 	def initialize
     @positionEnd = 0;
@@ -54,6 +54,7 @@ class SegmentPosition
 	end
 
   def add_position(key)
+    puts "key: #{key} SegmentPosition.add_position"
 		@position[@positionEnd].key = key;
 		@position[@positionEnd].state = SP_STATE_N;
 		@position[@positionEnd].morphCount = 0;
@@ -77,7 +78,7 @@ class SegmentPosition
 		positionEnd = 0;
 		prevIndex = add_position(POSITION_START_KEY);
 		@position[prevIndex].state = SP_STATE_M;
-
+    puts "POSITION_START_KEY:#{POSITION_START_KEY} Segment.Position.init( #{str} )"
 		rev = "";
 
     begin
@@ -95,8 +96,10 @@ class SegmentPosition
 		for i in 0..(str.length()-1) do
       #버그 가능성 있음. 문자열과 숫자 차이에 의한...
 			c = str[i]
+      puts "c:#{c} Segment.Position.init( #{str} )"
 			nextIndex = add_position(c);
 			set_position_link(prevIndex, nextIndex);
+      puts "prev:#{prevIndex} => next: #{nextIndex} Segment.Position.init( #{str} )"
 			prevIndex = nextIndex;
 
 			simti.insert(rev[0, str.length() - i],nextIndex);
@@ -104,6 +107,14 @@ class SegmentPosition
 
 		#for marking the end of the eojeol */
 		set_position_link(prevIndex, 0)
+
+    from = to = 1
+    puts "POSITION_START_KEY[#{SegmentPosition::POSITION_START_KEY}]"
+    while to != SegmentPosition::POSITION_START_KEY do
+      puts "to:#{to}>#{@position[to].key}<"
+      to = @position[to].nextPosition
+    end
+
 	end
 
 	def next_position( index)

@@ -182,7 +182,7 @@ class Trie
 	end
 
 	def node_look(key, idx)
-		TNODE parent = nil
+		parent = nil
 
 		if idx == 1 then
 			parent = @node_head

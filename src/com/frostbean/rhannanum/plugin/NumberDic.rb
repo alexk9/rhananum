@@ -22,7 +22,7 @@ class NumberDic
 
   end
 
-	def is_num(idx)
+	def is_num?(idx)
 		if @num_automata[idx][0] == 1 then
 			return true
 		else

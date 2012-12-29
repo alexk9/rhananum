@@ -368,9 +368,10 @@ class Code
 		result = Array.new(charList.size())
 
 		for i in 0..(result.length-1) do
-			result[i] = charList[i]
+			result[i] = [charList[i]].pack("U*")
 		end
 
+    #puts "Code.to_triple_arry: #{str} -> #{result}"
 		return result;
 	end
 
