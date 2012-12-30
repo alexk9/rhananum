@@ -621,10 +621,11 @@ class MorphemeChart
 			i=0
       while i < morph.connectionCount && @printResultCnt < MAX_CANDIDATE_NUM do
         if (morph.connection[i] == 0) then
-					mArray = @resMorphemes
-					tArray = @resTags
-					@resEojeols << Eojeol.new(mArray, tArray)
-
+					mArray = @resMorphemes.clone
+					tArray = @resTags.clone
+          ej= Eojeol.new(mArray, tArray)
+					@resEojeols << ej
+          puts "#{ej}@ChartMorphAnalyzer.process_eojeol"
 					@printResultCnt+=1
 				else
 					print_chart(morph.connection[i]);
@@ -634,8 +635,8 @@ class MorphemeChart
 
 			
 			@resMorphemes.delete_at(@resMorphemes.size() - 1);
-			@resTags.delete_at(@resTags.size() - 1);
-			if (engCnt > 0) then
+      @resTags.delete_at(@resTags.size() - 1);
+      if (engCnt > 0) then
 				@engReplaceIndex -= engCnt;
 			end
 			if (chiCnt > 0) then

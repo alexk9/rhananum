@@ -46,7 +46,8 @@ class PostProcessor
 				eojeol = eojeolSet[i]
 				morphemes = eojeol.get_morphemes()
 				tags = eojeol.get_tags();
-				
+				puts "#{eojeol}@do_post_processing"
+        puts "morphemes:#{morphemes.to_s}@do_post_processing"
 				for j in 0..(eojeol.length-1) do
 					tri = Code.to_triple_string(morphemes[j]);
 					if (tags[j].index("e")==0) then

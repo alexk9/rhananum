@@ -32,6 +32,7 @@ class UnknownProcessor
             tags[k] = "nqq"
             
             newEojeol = Eojeol.new(morphemes.clone,tags.clone)
+            puts "CLONE:#{newEojeol.object_id}"+newEojeol
             eojeolArray << newEojeol
             
             tagsk[k]= "ncn"

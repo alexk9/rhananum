@@ -278,9 +278,8 @@ class Workflow
           outQueue2 << sos
         end
       end
-    rescue Exception => e
-      puts e.inspect
-      puts e.backtrace
+    rescue ThreadError => e
+      #no error
     end
 
     if @morphemePluginCnt == 0 then

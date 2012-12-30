@@ -1,5 +1,9 @@
 class Eojeol
-  attr_accessor :length
+
+
+  def length
+    return @length
+  end
 
 	def initialize(morphemes=nil,tags=nil)
     #Morphemes in the eojeol.
@@ -15,10 +19,14 @@ class Eojeol
     elsif @tags != nil
       @length = @tags.size
     end
-    puts @length
+    puts "#{@morphemes.to_s}@#{@morphemes.object_id} AND #{@tags.to_s}@#{@tags.object_id} => #{@length}@#{self.object_id}"
+    puts self
   end
 
 	def get_morphemes()
+    puts "#{@morphemes.to_s}@#{@morphemes.object_id} AND #{@tags.to_s}@#{@tags.object_id} => #{@length}@#{self.object_id}"
+    puts self
+
 		return @morphemes
 	end
 	
@@ -34,7 +42,9 @@ class Eojeol
 		else
 			@length = @morphemes.length
     end
-    puts @length
+    puts "#{@morphemes.to_s}@#{@morphemes.object_id} AND #{@tags.to_s}@#{@tags.object_id} => #{@length}@#{self.object_id}@set_morpheme"
+    puts self
+
 	end
 	
 	def set_morpheme( index,  morpheme)
@@ -47,6 +57,8 @@ class Eojeol
 	end
 	
 	def get_tags()
+    puts "#{@morphemes.to_s}@#{@morphemes.object_id} AND #{@tags.to_s}@#{@tags.object_id} => #{@length}@#{self.object_id}@get_tags"
+    puts self
 		return @tags;
 	end
 	
@@ -62,7 +74,9 @@ class Eojeol
 		else
 			@length = @tags.length;
     end
-    puts @length
+    puts "#{@morphemes.to_s}@#{@morphemes.object_id} AND #{@tags.to_s}@#{@tags.object_id} => #{@length}@#{self.object_id}@set_tags"
+    puts self
+
 	end
 
   def set_tag( index,  tag)
@@ -81,7 +95,8 @@ class Eojeol
 				str += "+"
 			end
 			str += @morphemes[i] + "/" + @tags[i];
-		end
+    end
+    str+= "@#{self.object_id}"
 		return str;
 	end
 end

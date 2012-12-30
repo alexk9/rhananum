@@ -43,6 +43,7 @@ class Sentence < CommObject
 
   def set_eojeol_content(index, morphemes, tags)
     @eojeols[index] = Eojeol.new(morphemes, tags)
+    puts "#{@eojeols[index]}@Sentence.set_eojeol_content"
   end
 
   def toString

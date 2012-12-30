@@ -82,12 +82,14 @@ class ChartMorphAnalyzer < MorphAnalyzer
         morphemes = []
         tags = []
         for i in 0..(tokens.size()-1) do
-          morphemes << tokens[i*2]
-          tags << tokens[i*2+1]
+          if tokens[i*2] != nil and tokens[i*2+1] != nil then
+            morphemes << tokens[i*2]
+            tags << tokens[i*2+1]
+          end
         end
         eojeol = Eojeol.new(morphemes, tags)
         @eojeolList << eojeol
-        
+        puts "#{eojeol}@ChartMorphAnalyzer.process_eojeol"
       end
     else
       @chart.init(plainEojeol)
