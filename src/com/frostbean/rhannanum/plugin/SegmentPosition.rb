@@ -78,7 +78,7 @@ class SegmentPosition
 		positionEnd = 0;
 		prevIndex = add_position(POSITION_START_KEY);
 		@position[prevIndex].state = SP_STATE_M;
-    puts "POSITION_START_KEY:#{POSITION_START_KEY} Segment.Position.init( #{str} )"
+    puts "POSITION_START_KEY:#{POSITION_START_KEY} Segment.Position.init( #{str}, #{str.class} )"
 		rev = "";
 
     begin
@@ -109,7 +109,7 @@ class SegmentPosition
 		set_position_link(prevIndex, 0)
 
     from = to = 1
-    puts "POSITION_START_KEY[#{SegmentPosition::POSITION_START_KEY}]"
+    puts "POSITION_START_KEY[#{SegmentPosition::POSITION_START_KEY}]@SegmentPosition.init"
     while to != SegmentPosition::POSITION_START_KEY do
       puts "to:#{to}>#{@position[to].key}<"
       to = @position[to].nextPosition
