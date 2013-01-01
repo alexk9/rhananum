@@ -31,10 +31,10 @@
     <!-- Loggers -->
     <logger name="ObjectsLogger" level="ALL" additive="true" trace="true">
       <outputter>console</outputter>
-      <outputter>objects_outputter</outputter>
+      <!--<outputter>objects_outputter</outputter>-->
     </logger>
     <logger name="DefaultLogger" level="ALL" additive="false" trace="true">
       <outputter>console</outputter>
-      <outputter>file_outputter</outputter>
+      <!--<outputter>file_outputter</outputter>-->
     </logger>
 </log4r_config>

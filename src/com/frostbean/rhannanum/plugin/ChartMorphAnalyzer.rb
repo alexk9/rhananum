@@ -70,6 +70,7 @@ class ChartMorphAnalyzer < MorphAnalyzer
   
   def process_eojeol( plainEojeol)
     analysis = @analyzedDic.get(plainEojeol)
+    puts "ANALYSIS:#{analysis} @ChartMorphAnalyzer.process_eojeol"
     @eojeolList.clear
     
     if analysis != nil then
@@ -109,12 +110,16 @@ class ChartMorphAnalyzer < MorphAnalyzer
     
     plainEojeolArray = []
     eojeolSetArray = []
-    
+
     for plainEojeol in plainEojeols do
       plainEojeolArray << plainEojeol
       eojeolSetArray << process_eojeol(plainEojeol)
+      puts "EOJEOL SET ARRAY PROC: #{eojeolSetArray}"
     end
-    
+    puts "=== ChartMorphAnayzer.morph_anyze ==="
+    puts "PLAIN EOJEOL ARRAY:#{plainEojeolArray}"
+    puts "EOJEOL SET ARRAY:#{eojeolSetArray}"
+
     sos = SetOfSentences.new(ps.document_id, ps.sentence_id, ps.end_of_document, plainEojeolArray, eojeolSetArray)
     sos = @postProc.do_post_processing(sos)
     return sos
