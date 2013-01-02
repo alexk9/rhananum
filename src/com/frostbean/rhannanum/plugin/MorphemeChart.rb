@@ -197,8 +197,10 @@ class MorphemeChart
     res = analyze_with_index_type(0, TagSet::TAG_TYPE_ALL)
 
     if (res > 0) then
+      puts "ananyzed"
       return res;
     else
+      puts "ananyzed"
       return analyze_unknown();
     end
   end

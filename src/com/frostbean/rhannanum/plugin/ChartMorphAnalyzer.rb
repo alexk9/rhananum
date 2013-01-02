@@ -70,10 +70,11 @@ class ChartMorphAnalyzer < MorphAnalyzer
   
   def process_eojeol( plainEojeol)
     analysis = @analyzedDic.get(plainEojeol)
-    puts "ANALYSIS:#{analysis} @ChartMorphAnalyzer.process_eojeol"
+    puts "ANALYSIS:[#{analysis}] @ChartMorphAnalyzer.process_eojeol('#{plainEojeol}')"
     @eojeolList.clear
     
     if analysis != nil then
+      puts "analysis is NOT! null"
       #the eojeol was registered in the pre-analyzed dictionary
       analyzed_list = analysis.split("^")
       for analyzed in analyzed_list do
@@ -93,6 +94,7 @@ class ChartMorphAnalyzer < MorphAnalyzer
         puts "#{eojeol}@ChartMorphAnalyzer.process_eojeol"
       end
     else
+      puts "analysis is null"
       @chart.init(plainEojeol)
       @chart.analyze()
       @chart.get_result()
